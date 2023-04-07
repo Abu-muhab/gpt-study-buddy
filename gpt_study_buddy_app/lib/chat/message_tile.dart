@@ -52,21 +52,25 @@ class MessageTile extends StatelessWidget {
             children: [
               if (incoming) avatar,
               Container(
-                width: getTextWithFromTextAndTextStyle(
-                  message.message,
-                  messageTextStyle,
-                  context,
-                  constraints.maxWidth -
-                      avatarRadius * 2 -
-                      messagePadding * 2 -
-                      30,
-                ),
+                width: max(
+                    getTextWithFromTextAndTextStyle(
+                          text: message.message,
+                          textStyle: messageTextStyle,
+                          context: context,
+                          maxWidth: constraints.maxWidth -
+                              avatarRadius * 2 -
+                              messagePadding * 2 -
+                              30,
+                        ) +
+                        messagePadding * 2,
+                    80),
                 padding: const EdgeInsets.all(messagePadding),
                 decoration: BoxDecoration(
                   color: primaryColor[900],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       message.message,
@@ -113,12 +117,12 @@ String _getStringTimeStamp() {
   return formatted;
 }
 
-double getTextWithFromTextAndTextStyle(
-  String text,
-  TextStyle textStyle,
-  BuildContext context,
-  double maxWidth,
-) {
+double getTextWithFromTextAndTextStyle({
+  required String text,
+  required TextStyle textStyle,
+  required BuildContext context,
+  required double maxWidth,
+}) {
   final textPainter = TextPainter(
     text: TextSpan(
       text: text,
@@ -128,4 +132,56 @@ double getTextWithFromTextAndTextStyle(
     textDirection: ui.TextDirection.ltr,
   )..layout(minWidth: 0, maxWidth: maxWidth);
   return textPainter.size.width;
+}
+
+//slider transition
+//handle the animation object internally
+class MessageTileAnimation extends StatefulWidget {
+  const MessageTileAnimation({
+    super.key,
+    required this.child,
+  });
+
+  final MessageTile child;
+
+  @override
+  State<MessageTileAnimation> createState() => _MessageTileAnimationState();
+}
+
+class _MessageTileAnimationState extends State<MessageTileAnimation>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _controller;
+  late Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 200),
+    );
+    _animation = Tween<double>(begin: 0, end: 1).animate(_controller);
+    _controller.forward();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (widget.child.nextMessage != null) {
+      return widget.child;
+    }
+
+    return SlideTransition(
+      position: Tween<Offset>(
+        begin: const Offset(0, 1),
+        end: Offset.zero,
+      ).animate(_animation),
+      child: widget.child,
+    );
+  }
 }

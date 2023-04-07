@@ -1,35 +1,66 @@
-import 'package:faker/faker.dart';
+import 'dart:async';
+import 'dart:developer';
+
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gpt_study_buddy/chat/data/message.dart';
+import 'package:socket_io_client/socket_io_client.dart' as io;
+import 'package:uuid/uuid.dart';
 
 class MessageRepository {
-  static List<Message> getMockMessages(String userId) {
-    var faker = Faker();
-    String senderId = faker.guid.guid();
+  MessageRepository() {
+    _initializeSoketConnection();
+  }
 
-    List<Message> sent = List.generate(
-      10,
-      (index) => Message(
-        message: faker.lorem.sentence(),
-        senderId: senderId,
-        receiverId: userId,
-        type: faker.randomGenerator.string(10),
-        timestamp: faker.date.dateTime(),
-      ),
+  late io.Socket socket;
+  final StreamController<Message> _messageStreamController =
+      StreamController<Message>.broadcast();
+
+  void _initializeSoketConnection() {
+    socket = io.io(dotenv.env['SERVER_URL'],
+        io.OptionBuilder().setTransports(['websocket']).build());
+
+    socket.onConnect((_) {
+      log('connected');
+    });
+
+    socket.onError((data) {
+      log('error: $data');
+    });
+
+    socket.on('message', (data) {
+      final Map<String, dynamic> message = data;
+      _messageStreamController.add(Message.fromJson(message));
+    });
+  }
+
+  Stream<Message> get messages => _messageStreamController.stream;
+
+  void sendTextMessage({
+    required String senderId,
+    required String receiverId,
+    required String text,
+  }) {
+    if (!socket.connected) {
+      log('socket not connected');
+      _initializeSoketConnection();
+      return;
+    }
+
+    Message message = Message(
+      message: text,
+      senderId: senderId,
+      receiverId: receiverId,
+      type: 'text',
+      timestamp: DateTime.now(),
+      messageId: _nextMessageId(),
     );
 
-    List<Message> received = List.generate(
-      10,
-      (index) => Message(
-        message: faker.lorem.sentence().replaceAll("\n", " "),
-        senderId: userId,
-        receiverId: senderId,
-        type: faker.randomGenerator.string(10),
-        timestamp: faker.date.dateTime(),
-      ),
-    );
+    socket.emit('message', message.toJson());
+    _messageStreamController.add(message);
+  }
 
-    final messages = [...sent, ...received];
-    messages.sort((a, b) => a.timestamp.compareTo(b.timestamp));
-    return messages;
+  String _nextMessageId() {
+    var uuid = const Uuid();
+    return uuid.v4() + uuid.v4();
   }
 }

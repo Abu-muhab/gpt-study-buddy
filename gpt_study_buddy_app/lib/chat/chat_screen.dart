@@ -1,4 +1,6 @@
-import 'package:faker/faker.dart';
+import 'dart:async';
+
+import 'package:diffutil_sliverlist/diffutil_sliverlist.dart';
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/chat/data/message.dart';
 import 'package:gpt_study_buddy/chat/data/message_repo.dart';
@@ -13,15 +15,36 @@ class ChatView extends StatefulWidget {
 }
 
 class _ChatViewState extends State<ChatView> {
-  late List<Message> messages;
+  late ValueNotifier<List<Message>> messagesVN = ValueNotifier([]);
+  StreamSubscription<Message>? messageSubscription;
   late String userId;
+  final MessageRepository messageRepository = MessageRepository();
+
+  TextEditingController messageController = TextEditingController();
+  ScrollController scrollController = ScrollController();
+  Timer? scrollDebounceTimer;
 
   @override
   void initState() {
-    var faker = Faker();
-    userId = faker.guid.guid();
-    messages = MessageRepository.getMockMessages(userId);
+    userId = 'userid';
+    messageSubscription = messageRepository.messages.listen((message) async {
+      messagesVN.value = [...messagesVN.value, message];
+      _scrollToBottomDebounced();
+    });
     super.initState();
+  }
+
+  void _scrollToBottomDebounced() {
+    scrollDebounceTimer?.cancel();
+    scrollDebounceTimer = Timer(const Duration(milliseconds: 100), () {
+      scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    });
+  }
+
+  @override
+  void dispose() {
+    messageSubscription?.cancel();
+    super.dispose();
   }
 
   @override
@@ -45,30 +68,50 @@ class _ChatViewState extends State<ChatView> {
             child: Column(
               children: [
                 Expanded(
-                  child: ListView.builder(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 20),
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      Message message = messages[index];
-                      Message? previousMessage;
-                      Message? nextMessage;
+                  child: CustomScrollView(
+                    controller: scrollController,
+                    slivers: [
+                      ValueListenableBuilder<List<Message>>(
+                        valueListenable: messagesVN,
+                        builder: (context, messages, _) {
+                          return DiffUtilSliverList<Message>(
+                            equalityChecker: (Message item1, Message item2) =>
+                                item1.messageId == item2.messageId,
+                            items: messages,
+                            builder: (BuildContext context, Message message) {
+                              int index = messages.indexOf(message);
+                              Message? previousMessage;
+                              Message? nextMessage;
 
-                      if (index > 0) {
-                        previousMessage = messages[index - 1];
-                      }
+                              if (index > 0) {
+                                previousMessage = messages[index - 1];
+                              }
 
-                      if (index < messages.length - 1) {
-                        nextMessage = messages[index + 1];
-                      }
+                              if (index < messages.length - 1) {
+                                nextMessage = messages[index + 1];
+                              }
 
-                      return MessageTile(
-                        message: message,
-                        previousMessage: previousMessage,
-                        nextMessage: nextMessage,
-                        incoming: message.senderId != userId,
-                      );
-                    },
+                              return MessageTileAnimation(
+                                child: MessageTile(
+                                  message: message,
+                                  previousMessage: previousMessage,
+                                  nextMessage: nextMessage,
+                                  incoming: message.senderId != userId,
+                                ),
+                              );
+                            },
+                            insertAnimationBuilder: (BuildContext context,
+                                Animation<double> animation, Widget child) {
+                              return child;
+                            },
+                            removeAnimationBuilder: (BuildContext context,
+                                Animation<double> animation, Widget child) {
+                              return child;
+                            },
+                          );
+                        },
+                      )
+                    ],
                   ),
                 ),
                 Container(
@@ -79,6 +122,7 @@ class _ChatViewState extends State<ChatView> {
                     children: [
                       Expanded(
                         child: TextField(
+                          controller: messageController,
                           style: const TextStyle(
                             color: Colors.white,
                           ),
@@ -93,7 +137,16 @@ class _ChatViewState extends State<ChatView> {
                       ),
                       IconButton(
                         icon: const Icon(Icons.send),
-                        onPressed: () {},
+                        onPressed: () {
+                          if (messageController.text.isNotEmpty) {
+                            messageRepository.sendTextMessage(
+                              senderId: userId,
+                              receiverId: 'ai',
+                              text: messageController.text,
+                            );
+                            messageController.clear();
+                          }
+                        },
                       ),
                     ],
                   ),
