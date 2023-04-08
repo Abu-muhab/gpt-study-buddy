@@ -3,25 +3,34 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
+import { GptService } from './gpt.service';
+import { Message } from './models/message';
+import { randomUUID } from 'crypto';
 
 @WebSocketGateway(8000)
 export class ChatGateway {
+  constructor(private gptService: GptService) {}
+
   @SubscribeMessage('message')
-  async handleMessage(@MessageBody() paylod: any): Promise<any> {
-    const data = paylod;
-    data.timestamp = new Date();
+  async handleMessage(@MessageBody() payload: any): Promise<any> {
+    const messages = payload.messages as Message[];
+    const prompt = await this.gptService.getCompletetionFromMessages(
+      payload.userId,
+      messages,
+    );
 
-    const senderId = data.senderId;
-
-    data.senderId = 'ai';
-    data.receiverId = senderId;
-
-    //delay for 1 second
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    const messsage: Message = {
+      message: prompt,
+      senderId: 'AI',
+      receiverId: payload.userId,
+      type: 'text',
+      timestamp: new Date(),
+      messageId: randomUUID(),
+    };
 
     return {
       event: 'message',
-      data,
+      data: messsage,
     };
   }
 }

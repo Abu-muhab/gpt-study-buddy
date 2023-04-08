@@ -136,7 +136,10 @@ class _ChatViewState extends State<ChatView> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.send),
+                        icon: const Icon(
+                          Icons.send,
+                          color: Colors.white,
+                        ),
                         onPressed: () {
                           if (messageController.text.isNotEmpty) {
                             messageRepository.sendTextMessage(

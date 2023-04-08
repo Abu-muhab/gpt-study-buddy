@@ -14,6 +14,7 @@ class MessageRepository {
   late io.Socket socket;
   final StreamController<Message> _messageStreamController =
       StreamController<Message>.broadcast();
+  final List<Message> _currentMessages = [];
 
   void _initializeSoketConnection() {
     socket = io.io(dotenv.env['SERVER_URL'],
@@ -28,8 +29,12 @@ class MessageRepository {
     });
 
     socket.on('message', (data) {
-      final Map<String, dynamic> message = data;
-      _messageStreamController.add(Message.fromJson(message));
+      try {
+        if (data == null) return;
+        final Map<String, dynamic> message = data;
+        _messageStreamController.add(Message.fromJson(message));
+        _currentMessages.add(Message.fromJson(message));
+      } catch (_) {}
     });
   }
 
@@ -41,7 +46,6 @@ class MessageRepository {
     required String text,
   }) {
     if (!socket.connected) {
-      log('socket not connected');
       _initializeSoketConnection();
       return;
     }
@@ -55,8 +59,13 @@ class MessageRepository {
       messageId: _nextMessageId(),
     );
 
-    socket.emit('message', message.toJson());
     _messageStreamController.add(message);
+    _currentMessages.add(message);
+
+    socket.emit('message', {
+      "messages": _currentMessages,
+      "userId": senderId,
+    });
   }
 
   String _nextMessageId() {

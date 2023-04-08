@@ -24,8 +24,8 @@ class MessageTile extends StatelessWidget {
   Widget build(BuildContext context) {
     const messageTextStyle = TextStyle(
       color: Colors.white,
-      fontSize: 13,
-      fontWeight: FontWeight.w200,
+      fontSize: 15,
+      fontWeight: FontWeight.w300,
     );
     return LayoutBuilder(builder: (context, constraints) {
       const avatarRadius = 15.0;

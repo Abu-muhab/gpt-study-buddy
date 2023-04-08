@@ -16,7 +16,7 @@ class Message {
   final String messageId;
 
   factory Message.fromJson(Map<String, dynamic> json) => Message(
-        message: json["message"],
+        message: (json["message"] as String).trim(),
         senderId: json["senderId"],
         receiverId: json["receiverId"],
         type: json["type"],
