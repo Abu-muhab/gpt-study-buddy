@@ -8,7 +8,7 @@ import { Message } from './models/message';
 import { randomUUID } from 'crypto';
 import { ChatBotRepository } from './chat_bot_repo';
 
-@WebSocketGateway(8000)
+@WebSocketGateway()
 export class ChatGateway {
   constructor(
     private gptService: GptService,
