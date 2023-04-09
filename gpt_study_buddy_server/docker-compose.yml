@@ -1,11 +1,12 @@
-version: '3'
+version: '3.9'
 services:
-  app:
-    build: .
+  chat_buddy:
+    container_name: chat_buddy
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
     ports:
-      - "3333:3333"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "8000:3000"
     env_file:
       - .env
