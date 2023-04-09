@@ -134,8 +134,6 @@ double getTextWithFromTextAndTextStyle({
   return textPainter.size.width;
 }
 
-//slider transition
-//handle the animation object internally
 class MessageTileAnimation extends StatefulWidget {
   const MessageTileAnimation({
     super.key,

@@ -51,7 +51,7 @@ class _ChatViewState extends State<ChatView> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Chat'),
+        title: const Text('Sukanmi'),
         elevation: 0,
         actions: [
           IconButton(
@@ -144,7 +144,7 @@ class _ChatViewState extends State<ChatView> {
                           if (messageController.text.isNotEmpty) {
                             messageRepository.sendTextMessage(
                               senderId: userId,
-                              receiverId: 'ai',
+                              receiverId: 'chatbot-1',
                               text: messageController.text,
                             );
                             messageController.clear();

@@ -45,11 +45,6 @@ class MessageRepository {
     required String receiverId,
     required String text,
   }) {
-    if (!socket.connected) {
-      _initializeSoketConnection();
-      return;
-    }
-
     Message message = Message(
       message: text,
       senderId: senderId,
@@ -65,6 +60,7 @@ class MessageRepository {
     socket.emit('message', {
       "messages": _currentMessages,
       "userId": senderId,
+      "chatBotId": receiverId,
     });
   }
 
