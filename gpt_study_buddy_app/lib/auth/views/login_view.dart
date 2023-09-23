@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gpt_study_buddy/auth/auth_service.dart';
 import 'package:gpt_study_buddy/auth/auth_service_provider.dart';
 import 'package:gpt_study_buddy/auth/data/dtos.dart';
 import 'package:gpt_study_buddy/common/app_scaffold.dart';
 import 'package:gpt_study_buddy/common/app_validators.dart';
+import 'package:gpt_study_buddy/common/dialogs.dart';
+import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:gpt_study_buddy/main.dart';
 import 'package:gpt_study_buddy/navigation/app_views.dart';
 import 'package:provider/provider.dart';
@@ -88,19 +89,14 @@ class LoginView extends StatelessWidget {
                                   password: passwordController.text,
                                 ),
                               );
-                            } on AuthException catch (e) {
+                            } on DomainException catch (e) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
                                   content: Text(e.message),
                                 ),
                               );
                             } catch (_) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                      'An unexpected error occurred. Please try again later.'),
-                                ),
-                              );
+                              showUnexpectedErrorToast(context);
                             }
                           }
                         },

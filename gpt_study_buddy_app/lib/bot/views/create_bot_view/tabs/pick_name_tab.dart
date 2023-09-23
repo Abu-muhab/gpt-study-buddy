@@ -1,10 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:gpt_study_buddy/bot/views/create_bot_view/create_bot_viewmodel.dart';
 import 'package:gpt_study_buddy/main.dart';
+import 'package:provider/provider.dart';
 
-class PickNameTab extends StatelessWidget {
+class PickNameTab extends StatefulWidget {
   const PickNameTab({
     super.key,
   });
+
+  @override
+  State<PickNameTab> createState() => _PickNameTabState();
+}
+
+class _PickNameTabState extends State<PickNameTab> {
+  late final TextEditingController _nameController;
+  late final CreateBotViewmodel viewmodel;
+
+  @override
+  void initState() {
+    viewmodel = context.read<CreateBotViewmodel>();
+    _nameController = TextEditingController(text: viewmodel.name);
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -30,6 +47,7 @@ class PickNameTab extends StatelessWidget {
             height: 20,
           ),
           TextField(
+            controller: _nameController,
             style: const TextStyle(
               color: Colors.white,
             ),
@@ -57,6 +75,9 @@ class PickNameTab extends StatelessWidget {
                 ),
               ),
             ),
+            onChanged: (value) {
+              context.read<CreateBotViewmodel>().name = value;
+            },
           ),
         ],
       ),

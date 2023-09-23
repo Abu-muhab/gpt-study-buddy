@@ -1,4 +1,9 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
+import 'package:gpt_study_buddy/common/app_scaffold.dart';
+import 'package:gpt_study_buddy/common/dialogs.dart';
+import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:provider/provider.dart';
 
 import '../../../main.dart';
@@ -21,7 +26,8 @@ class _CreateBotViewState extends State<CreateBotView> {
   @override
   Widget build(BuildContext context) {
     return Consumer<CreateBotViewmodel>(builder: (context, viewmodel, _) {
-      return Scaffold(
+      return AppScaffold(
+        isLoading: viewmodel.loading,
         appBar: AppBar(
             leading: IconButton(
               onPressed: () {
@@ -68,11 +74,32 @@ class _CreateBotViewState extends State<CreateBotView> {
                   width: double.infinity,
                   height: 45,
                   child: ElevatedButton(
-                    onPressed: () {
-                      context.read<CreateBotViewmodel>().nextStep();
+                    onPressed: () async {
+                      try {
+                        if (viewmodel.canGoToNextStep) {
+                          if (viewmodel.isLastStep) {
+                            await context
+                                .read<CreateBotViewmodel>()
+                                .createBot();
+                            await showInfoDialog(
+                              context: context,
+                              title: "Assistant Created",
+                              message: "Your assistant has been created.",
+                            );
+                            Navigator.of(context).pop();
+                          } else {
+                            context.read<CreateBotViewmodel>().nextStep();
+                          }
+                        }
+                      } on DomainException catch (e) {
+                        showToast(context, e.message);
+                      } catch (_) {
+                        showUnexpectedErrorToast(context);
+                      }
                     },
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.blue,
+                      backgroundColor:
+                          viewmodel.canGoToNextStep ? Colors.blue : Colors.grey,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(5),
                       ),

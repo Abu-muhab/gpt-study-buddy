@@ -1,13 +1,22 @@
 import 'dart:convert';
 
+import 'package:gpt_study_buddy/auth/data/auth_token.dart';
+import 'package:gpt_study_buddy/auth/data/auth_token_repo.dart';
 import 'package:http/http.dart' as http;
 
 class AppHttpClient {
-  static Future<FailureOrResponse> get(String url) async {
+  AppHttpClient({
+    required this.authTokenRepo,
+  });
+
+  final AuthTokenRepo authTokenRepo;
+
+  Future<FailureOrResponse> get(String url) async {
     final http.Response response = await http.get(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
+        ...await getAuthHeader(),
       },
     );
 
@@ -25,12 +34,12 @@ class AppHttpClient {
     }
   }
 
-  static Future<FailureOrResponse> post(
-      String url, Map<String, dynamic> body) async {
+  Future<FailureOrResponse> post(String url, Map<String, dynamic> body) async {
     final http.Response response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',
+        ...await getAuthHeader(),
       },
       body: const JsonEncoder().convert(body),
     );
@@ -68,6 +77,16 @@ class AppHttpClient {
     } else {
       return null;
     }
+  }
+
+  Future<Map<String, dynamic>> getAuthHeader() async {
+    final AuthToken? authToken = await authTokenRepo.getAuthToken();
+    if (authToken == null) {
+      {}
+    }
+    return <String, String>{
+      'Authorization': 'Bearer ${authToken!.token}',
+    };
   }
 }
 

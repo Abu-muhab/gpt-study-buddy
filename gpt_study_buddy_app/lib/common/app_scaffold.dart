@@ -5,14 +5,17 @@ class AppScaffold extends StatelessWidget {
     super.key,
     required this.body,
     this.isLoading = false,
+    this.appBar,
   });
 
   final Widget body;
   final bool isLoading;
+  final PreferredSizeWidget? appBar;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: appBar,
       body: Stack(
         children: [
           body,
