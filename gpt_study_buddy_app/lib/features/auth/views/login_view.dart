@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gpt_study_buddy/common/app_scaffold.dart';
@@ -95,7 +97,8 @@ class LoginView extends StatelessWidget {
                                   content: Text(e.message),
                                 ),
                               );
-                            } catch (_) {
+                            } catch (err, stack) {
+                              log(err.toString(), stackTrace: stack);
                               showUnexpectedErrorToast(context);
                             }
                           }

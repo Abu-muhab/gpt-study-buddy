@@ -82,7 +82,7 @@ class AppHttpClient {
   Future<Map<String, dynamic>> getAuthHeader() async {
     final AuthToken? authToken = await authTokenRepo.getAuthToken();
     if (authToken == null) {
-      {}
+      return {};
     }
     return <String, String>{
       'Authorization': 'Bearer ${authToken!.token}',
