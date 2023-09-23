@@ -8,7 +8,6 @@ import {
 } from './user.dto';
 import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
 import { HttpDomainExceptionFilter } from 'src/common/http_domain_exception_filter';
-import { AuthService } from './auth.service';
 import { UsersRepository } from './user.repository';
 
 @Controller('users')
@@ -16,7 +15,6 @@ import { UsersRepository } from './user.repository';
 export class UsersController {
   constructor(
     private readonly usersService: UsersService,
-    private readonly authService: AuthService,
     private readonly usersRepository: UsersRepository,
   ) {}
 
@@ -28,7 +26,7 @@ export class UsersController {
       await this.usersService.createUser(body),
     );
 
-    const token = await this.authService.login({
+    const token = await this.usersService.login({
       email: body.email,
       password: body.password,
     });
@@ -44,7 +42,7 @@ export class UsersController {
   @ApiOperation({ summary: 'Login' })
   async login(@Body() body: LoginRequest): Promise<AuthResponse> {
     return {
-      token: await this.authService.login({
+      token: await this.usersService.login({
         email: body.email,
         password: body.password,
       }),

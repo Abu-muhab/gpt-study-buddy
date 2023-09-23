@@ -34,4 +34,28 @@ export class UsersService {
 
     return newUser;
   }
+
+  public async login(params: {
+    email: string;
+    password: string;
+  }): Promise<string> {
+    const user = await this.usersRepository.findByEmail(params.email);
+    if (!user) {
+      throw new UserError.InvalidCredentials();
+    }
+
+    const isPasswordValid = await this.cryptoService.comparePassword(
+      params.password,
+      user.password,
+    );
+    if (!isPasswordValid) {
+      throw new UserError.InvalidCredentials();
+    }
+
+    const authToken = await this.cryptoService.generateAccessToken({
+      id: user.id,
+    });
+
+    return authToken;
+  }
 }
