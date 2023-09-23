@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:gpt_study_buddy/auth/data/auth_token.dart';
-import 'package:gpt_study_buddy/auth/data/auth_token_repo.dart';
+import 'package:gpt_study_buddy/features/auth/data/auth_token.dart';
+import 'package:gpt_study_buddy/features/auth/data/auth_token_repo.dart';
 import 'package:http/http.dart' as http;
 
 class AppHttpClient {

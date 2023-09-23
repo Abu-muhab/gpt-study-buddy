@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gpt_study_buddy/auth/providers/auth_service_provider.dart';
-import 'package:gpt_study_buddy/chat/providers/chat_details_viewmodel.dart';
-import 'package:gpt_study_buddy/chat/providers/chats_provider.dart';
-import 'package:gpt_study_buddy/bot/providers/create_bot_viewmodel.dart';
+import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
+import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart';
+import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
+import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
+import 'package:gpt_study_buddy/features/navigation/app_router.dart';
 import 'package:provider/provider.dart';
 
 import 'injection_container.dart';
-import 'navigation/app_router.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
