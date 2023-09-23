@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gpt_study_buddy/chat/chat_screen.dart';
+import 'package:gpt_study_buddy/chat/chat_list.dart';
 
 Future<void> main() async {
   await dotenv.load(fileName: ".env");
@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: primaryColor,
       ),
-      home: const ChatView(),
+      home: const ChatListView(),
     );
   }
 }

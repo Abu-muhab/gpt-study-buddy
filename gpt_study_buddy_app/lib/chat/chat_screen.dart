@@ -148,6 +148,7 @@ class _ChatViewState extends State<ChatView> {
                               text: messageController.text,
                             );
                             messageController.clear();
+                            FocusScope.of(context).unfocus();
                           }
                         },
                       ),
