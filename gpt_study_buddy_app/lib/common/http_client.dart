@@ -85,7 +85,7 @@ class AppHttpClient {
       return {};
     }
     return <String, String>{
-      'Authorization': 'Bearer ${authToken!.token}',
+      'Authorization': 'Bearer ${authToken.token}',
     };
   }
 }
