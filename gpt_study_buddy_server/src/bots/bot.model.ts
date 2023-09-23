@@ -75,10 +75,10 @@ export class Bot extends Entity {
       throw new DomainError.RequiredPropertyError('description');
     }
 
-    if (value.length < 50) {
+    if (value.length < 10) {
       throw new DomainError.InvalidPropertyError(
         'description',
-        'Description must be at least 50 characters long',
+        'Description must be at least 10 characters long',
       );
     }
 

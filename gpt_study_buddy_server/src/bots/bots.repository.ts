@@ -7,7 +7,7 @@ import { Mapper } from 'src/common/mapper';
 
 export abstract class BotsRepository extends Repository<Bot> {
   abstract getUserBots(userId: string): Promise<Bot[]>;
-  abstract findBySlug(slug: string, userId: string): Promise<Bot>;
+  abstract findBySlug(params: { slug: string; userId: string }): Promise<Bot>;
 }
 
 export interface BotDocument {
@@ -23,6 +23,7 @@ const botSchema = new Schema<BotDocument>({
   name: { type: String, required: true },
   description: { type: String, required: true },
   userId: { type: String, required: true },
+  slug: { type: String, required: true },
 });
 
 @Injectable()
@@ -60,8 +61,14 @@ export class BotsRepositoryImpl
     super(BotModel, mapper);
   }
 
-  async findBySlug(slug: string, userId: string): Promise<Bot> {
-    const document = await this.model.findOne({ slug: slug, userId: userId });
+  async findBySlug(params: { slug: string; userId: string }): Promise<Bot> {
+    const document = await this.model.findOne({
+      slug: params.slug,
+      userId: params.userId,
+    });
+
+    if (!document) return null;
+
     return this.mapper.toDomain(document);
   }
 

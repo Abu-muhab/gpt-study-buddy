@@ -1,4 +1,4 @@
-class StringHelper {
+export class StringHelper {
   static slugify(text: string): string {
     return text
       .toString()

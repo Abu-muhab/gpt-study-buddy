@@ -4,6 +4,7 @@ import { Bot } from './bot.model';
 import { UsersRepository } from 'src/users/user.repository';
 import { UserError } from 'src/users/user.errors';
 import { BotError } from './bots.errors';
+import { StringHelper } from 'src/common/string_helpers';
 
 @Injectable()
 export class BotsService {
@@ -22,10 +23,10 @@ export class BotsService {
       throw new UserError.UserNotFound();
     }
 
-    const botExists = await this.botsRepository.findBySlug(
-      StringHelper.slugify(params.name),
-      params.userId,
-    );
+    const botExists = await this.botsRepository.findBySlug({
+      slug: StringHelper.slugify(params.name),
+      userId: params.userId,
+    });
     if (botExists) {
       throw new BotError.BotAlreadyExists();
     }
