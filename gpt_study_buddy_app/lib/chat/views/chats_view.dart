@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/create_bot_viewmodel.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/create_bot_view.dart';
+import 'package:go_router/go_router.dart';
 import 'package:gpt_study_buddy/main.dart';
-import 'package:provider/provider.dart';
+import 'package:gpt_study_buddy/navigation/app_views.dart';
 
-class ChatListView extends StatelessWidget {
-  const ChatListView({super.key});
+class ChatsView extends StatelessWidget {
+  const ChatsView({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,14 +16,7 @@ class ChatListView extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (context) => ChangeNotifierProvider(
-                create: (context) => CreateBotViewmodel(),
-                child: const CreateAssistantView(),
-              ),
-            ),
-          );
+          context.go(AppViews.createBot);
         },
         child: const Icon(Icons.add),
       ),

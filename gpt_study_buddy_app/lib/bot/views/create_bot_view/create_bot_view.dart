@@ -1,26 +1,26 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/pick_name_tab.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/select_interests_tab.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/select_language_tab.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/select_traits_tab.dart';
-import 'package:gpt_study_buddy/bot/create_bot_view/select_usefullness_tab.dart';
-import 'package:gpt_study_buddy/bot/progress_indicator.dart';
 import 'package:provider/provider.dart';
 
-import '../../main.dart';
+import '../../../main.dart';
 import 'create_bot_viewmodel.dart';
+import 'tabs/pick_name_tab.dart';
+import 'tabs/select_interests_tab.dart';
+import 'tabs/select_language_tab.dart';
+import 'tabs/select_traits_tab.dart';
+import 'tabs/select_usefullness_tab.dart';
+import 'widgets/progress_indicator.dart';
 
-class CreateAssistantView extends StatefulWidget {
-  const CreateAssistantView({super.key});
+class CreateBotView extends StatefulWidget {
+  const CreateBotView({super.key});
 
   @override
-  State<CreateAssistantView> createState() => _CreateAssistantViewState();
+  State<CreateBotView> createState() => _CreateBotViewState();
 }
 
-class _CreateAssistantViewState extends State<CreateAssistantView> {
+class _CreateBotViewState extends State<CreateBotView> {
   @override
   Widget build(BuildContext context) {
-    return Consumer<CreateBotViewmodel>(builder: (context, controller, _) {
+    return Consumer<CreateBotViewmodel>(builder: (context, viewmodel, _) {
       return Scaffold(
         appBar: AppBar(
             leading: IconButton(
@@ -37,7 +37,7 @@ class _CreateAssistantViewState extends State<CreateAssistantView> {
             bottom: PreferredSize(
               preferredSize: const Size.fromHeight(10),
               child: AnimatedLinearProgressIndicator(
-                progress: controller.completionPercentage,
+                progress: viewmodel.completionPercentage,
               ),
             )),
         body: Container(
@@ -48,15 +48,15 @@ class _CreateAssistantViewState extends State<CreateAssistantView> {
               Expanded(
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
-                  child: controller.step == CreateAssistantStep.name
+                  child: viewmodel.step == CreateAssistantStep.name
                       ? const PickNameTab()
-                      : controller.step == CreateAssistantStep.usefulness
+                      : viewmodel.step == CreateAssistantStep.usefulness
                           ? const SelectUsefullnessTab()
-                          : controller.step == CreateAssistantStep.trait
+                          : viewmodel.step == CreateAssistantStep.trait
                               ? const SelectTraitTab()
-                              : controller.step == CreateAssistantStep.language
+                              : viewmodel.step == CreateAssistantStep.language
                                   ? const SelectLanguageTab()
-                                  : controller.step ==
+                                  : viewmodel.step ==
                                           CreateAssistantStep.interests
                                       ? const SelectInterestsTab()
                                       : const SizedBox(),
@@ -78,7 +78,7 @@ class _CreateAssistantViewState extends State<CreateAssistantView> {
                       ),
                     ),
                     child: Text(
-                      controller.isLastStep ? "Create Assistant" : "Next Step",
+                      viewmodel.isLastStep ? "Create Assistant" : "Next Step",
                     ),
                   ),
                 ),

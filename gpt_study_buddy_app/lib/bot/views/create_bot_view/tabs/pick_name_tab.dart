@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import '../../main.dart';
+import 'package:gpt_study_buddy/main.dart';
 
 class PickNameTab extends StatelessWidget {
   const PickNameTab({

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_study_buddy/bot/custom_radio_button.dart';
-
-import '../../main.dart';
+import 'package:gpt_study_buddy/bot/views/create_bot_view/widgets/custom_radio_button.dart';
+import 'package:gpt_study_buddy/main.dart';
 
 class SelectTraitTab extends StatelessWidget {
   const SelectTraitTab({

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_study_buddy/bot/custom_radio_button.dart';
+import 'package:gpt_study_buddy/bot/views/create_bot_view/widgets/custom_radio_button.dart';
+import 'package:gpt_study_buddy/main.dart';
 
-import '../../main.dart';
-
-class SelectLanguageTab extends StatelessWidget {
-  const SelectLanguageTab({
+class SelectUsefullnessTab extends StatelessWidget {
+  const SelectUsefullnessTab({
     super.key,
   });
 
@@ -21,7 +20,7 @@ class SelectLanguageTab extends StatelessWidget {
             height: 20,
           ),
           const Text(
-            "What language do you want your assistant to speak?",
+            "How helpful do you want your assistant to be?",
             style: TextStyle(
               fontSize: 30,
               fontWeight: FontWeight.bold,
@@ -34,18 +33,20 @@ class SelectLanguageTab extends StatelessWidget {
           CustomRadioButton<int>(
             value: 1,
             groupValue: 1,
-            onChanged: (int? value) {},
-            text: "English",
-            subText:
-                "The AI assistant speaks English, using American English spelling and grammar",
+            onChanged: (value) {},
+            text: "Helpful",
           ),
           CustomRadioButton<int>(
             value: 2,
             groupValue: 1,
-            onChanged: (int? value) {},
-            text: "Nigerian pidgin",
-            subText:
-                "The AI assistant speaks Nigerian pidgin, using Nigerian pidgin spelling and grammar",
+            onChanged: (value) {},
+            text: "Sometimes helpful",
+          ),
+          CustomRadioButton<int>(
+            value: 3,
+            groupValue: 1,
+            onChanged: (value) {},
+            text: "Painfully useless",
           ),
         ],
       ),

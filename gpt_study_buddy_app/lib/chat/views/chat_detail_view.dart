@@ -4,17 +4,17 @@ import 'package:diffutil_sliverlist/diffutil_sliverlist.dart';
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/chat/data/message.dart';
 import 'package:gpt_study_buddy/chat/data/message_repo.dart';
-import 'package:gpt_study_buddy/chat/message_tile.dart';
+import 'package:gpt_study_buddy/chat/views/widgets/message_tile.dart';
 import 'package:gpt_study_buddy/main.dart';
 
-class ChatView extends StatefulWidget {
-  const ChatView({super.key});
+class ChatDetailView extends StatefulWidget {
+  const ChatDetailView({super.key});
 
   @override
-  State<ChatView> createState() => _ChatViewState();
+  State<ChatDetailView> createState() => _ChatDetailViewState();
 }
 
-class _ChatViewState extends State<ChatView> {
+class _ChatDetailViewState extends State<ChatDetailView> {
   late ValueNotifier<List<Message>> messagesVN = ValueNotifier([]);
   StreamSubscription<Message>? messageSubscription;
   late String userId;
