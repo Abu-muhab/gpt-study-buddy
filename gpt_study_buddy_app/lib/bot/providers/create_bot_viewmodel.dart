@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/bot/bot_service.dart';
+import 'package:gpt_study_buddy/bot/data/bot.dart';
+import 'package:gpt_study_buddy/chat/providers/chats_provider.dart';
 
 enum CreateAssistantStep { name, usefulness, trait, language, interests }
 
 class CreateBotViewmodel extends ChangeNotifier {
-  CreateBotViewmodel({required this.botService});
+  CreateBotViewmodel({
+    required this.botService,
+    required this.chatsProvider,
+  });
   final BotService botService;
+  final ChatsProvider chatsProvider;
 
   int _stepIndex = 0;
   CreateAssistantStep get step => CreateAssistantStep.values[_stepIndex];
@@ -108,10 +114,11 @@ class CreateBotViewmodel extends ChangeNotifier {
   Future<void> createBot() async {
     try {
       loading = true;
-      await botService.createBot(
+      final Bot bot = await botService.createBot(
         name: name!,
         description: getBotSummary(),
       );
+      chatsProvider.addChat(bot);
     } finally {
       loading = false;
     }

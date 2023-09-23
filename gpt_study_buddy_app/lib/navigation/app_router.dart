@@ -1,9 +1,11 @@
 import "package:flutter/material.dart";
 import "package:go_router/go_router.dart";
-import "package:gpt_study_buddy/auth/auth_service_provider.dart";
+import 'package:gpt_study_buddy/auth/providers/auth_service_provider.dart';
 import "package:gpt_study_buddy/auth/views/login_view.dart";
 import 'package:gpt_study_buddy/auth/views/signup_view.dart';
+import "package:gpt_study_buddy/bot/data/bot.dart";
 import "package:gpt_study_buddy/bot/views/create_bot_view/create_bot_view.dart";
+import "package:gpt_study_buddy/chat/views/chat_detail_view.dart";
 import "package:gpt_study_buddy/chat/views/chats_view.dart";
 import "package:gpt_study_buddy/injection_container.dart";
 import "package:gpt_study_buddy/navigation/app_views.dart";
@@ -35,6 +37,14 @@ final GoRouter appRouter = GoRouter(
             path: AppViews.resolveSubRoute(AppViews.createBot, AppViews.chats),
             builder: (BuildContext context, GoRouterState state) =>
                 const CreateBotView(),
+          ),
+          GoRoute(
+            path:
+                AppViews.resolveSubRoute(AppViews.chatDetails, AppViews.chats),
+            builder: (BuildContext context, GoRouterState state) {
+              final Bot bot = (state.extra! as Map<String, dynamic>)['bot'];
+              return ChatDetailView(bot: bot);
+            },
           ),
         ]),
     GoRoute(

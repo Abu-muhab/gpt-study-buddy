@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gpt_study_buddy/auth/auth_service_provider.dart';
+import 'package:gpt_study_buddy/auth/providers/auth_service_provider.dart';
 import 'package:gpt_study_buddy/auth/data/dtos.dart';
 import 'package:gpt_study_buddy/common/app_scaffold.dart';
 import 'package:gpt_study_buddy/common/app_validators.dart';

@@ -6,16 +6,19 @@ class AppScaffold extends StatelessWidget {
     required this.body,
     this.isLoading = false,
     this.appBar,
+    this.floatingActionButton,
   });
 
   final Widget body;
   final bool isLoading;
   final PreferredSizeWidget? appBar;
+  final Widget? floatingActionButton;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: appBar,
+      floatingActionButton: floatingActionButton,
       body: Stack(
         children: [
           body,

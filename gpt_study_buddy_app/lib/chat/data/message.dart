@@ -24,6 +24,15 @@ class Message {
         messageId: json["messageId"],
       );
 
+  factory Message.empty() => Message(
+        message: '',
+        senderId: '',
+        receiverId: '',
+        type: '',
+        timestamp: DateTime.now(),
+        messageId: '',
+      );
+
   Map<String, dynamic> toJson() => {
         "message": message,
         "senderId": senderId,
@@ -32,4 +41,9 @@ class Message {
         "timestamp": timestamp.toIso8601String(),
         "messageId": messageId,
       };
+
+  bool isForChat({required String participant1, required String participant2}) {
+    return (senderId == participant1 && receiverId == participant2) ||
+        (senderId == participant2 && receiverId == participant1);
+  }
 }

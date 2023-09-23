@@ -3,7 +3,7 @@ import 'package:gpt_study_buddy/auth/auth_service.dart';
 import 'package:gpt_study_buddy/auth/data/auth_token.dart';
 import 'package:gpt_study_buddy/auth/data/dtos.dart';
 
-import 'data/auth_token_repo.dart';
+import '../data/auth_token_repo.dart';
 
 class AuthServiceProvider extends ChangeNotifier {
   AuthServiceProvider({

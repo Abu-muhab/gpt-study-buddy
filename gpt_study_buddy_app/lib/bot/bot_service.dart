@@ -27,7 +27,7 @@ class BotService {
     }
   }
 
-  Future<List> getBots() async {
+  Future<List<Bot>> getBots() async {
     final FailureOrResponse response =
         await httpClient.get('${dotenv.env['SERVER_URL']}/bots');
 

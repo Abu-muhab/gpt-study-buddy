@@ -7,7 +7,7 @@ import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:provider/provider.dart';
 
 import '../../../main.dart';
-import 'create_bot_viewmodel.dart';
+import '../../providers/create_bot_viewmodel.dart';
 import 'tabs/pick_name_tab.dart';
 import 'tabs/select_interests_tab.dart';
 import 'tabs/select_language_tab.dart';
@@ -23,6 +23,14 @@ class CreateBotView extends StatefulWidget {
 }
 
 class _CreateBotViewState extends State<CreateBotView> {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      context.read<CreateBotViewmodel>().reset();
+    });
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Consumer<CreateBotViewmodel>(builder: (context, viewmodel, _) {

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:gpt_study_buddy/auth/auth_service_provider.dart';
-import 'package:gpt_study_buddy/bot/views/create_bot_view/create_bot_viewmodel.dart';
+import 'package:gpt_study_buddy/auth/providers/auth_service_provider.dart';
+import 'package:gpt_study_buddy/chat/providers/chat_details_viewmodel.dart';
+import 'package:gpt_study_buddy/chat/providers/chats_provider.dart';
+import 'package:gpt_study_buddy/bot/providers/create_bot_viewmodel.dart';
 import 'package:provider/provider.dart';
 
 import 'injection_container.dart';
@@ -17,6 +19,12 @@ Future<void> main() async {
         create: (context) => sl(),
       ),
       ChangeNotifierProvider<CreateBotViewmodel>(
+        create: (context) => sl(),
+      ),
+      ChangeNotifierProvider<ChatsProvider>(
+        create: (context) => sl(),
+      ),
+      ChangeNotifierProvider<ChatDetailsViewModel>(
         create: (context) => sl(),
       ),
     ],
