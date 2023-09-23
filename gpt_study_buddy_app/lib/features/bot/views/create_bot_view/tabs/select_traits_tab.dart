@@ -29,29 +29,6 @@ class _SelectTraitTabState extends State<SelectTraitTab> {
     });
   }
 
-  List<Map<String, dynamic>> traits = [
-    {
-      "text": "Professional",
-      "subText":
-          "The AI assistant speaks in a formal and respectful tone, using appropriate titles and language in business and work-related contexts.",
-    },
-    {
-      "text": "Witty",
-      "subText":
-          "The AI assistant has a quick and clever sense of humor, using puns, jokes, and pop culture references to entertain and engage the user",
-    },
-    {
-      "text": "Informative",
-      "subText":
-          "The AI assistant has a serious and informative personality, providing detailed and accurate information on a variety of topics",
-    },
-    {
-      "text": "Supportive",
-      "subText":
-          "The AI assistant has a nurturing and empathetic personality, providing encouragement and emotional support to the user.",
-    },
-  ];
-
   @override
   Widget build(BuildContext context) {
     return Container(

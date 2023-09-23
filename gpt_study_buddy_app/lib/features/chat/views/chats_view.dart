@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:gpt_study_buddy/common/app_scaffold.dart';
+import 'package:gpt_study_buddy/common/image_assets.dart';
 import 'package:gpt_study_buddy/features/chat/data/chat.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 import 'package:gpt_study_buddy/features/navigation/app_views.dart';
@@ -29,30 +30,57 @@ class ChatsView extends StatelessWidget {
           ),
           body: Container(
             color: primaryColor[100],
-            child: ListView(
-              children: <Widget>[
-                ...chatsProvider.chats.map(
-                  (chat) => GestureDetector(
-                    behavior: HitTestBehavior.opaque,
-                    onTap: () {
-                      context.go(AppViews.chatDetails, extra: {
-                        'bot': chat.bot,
-                      });
-                    },
-                    child: Column(
-                      children: [
-                        ChatTile(
-                          chat: chat,
-                        ),
-                        Divider(
+            child: Builder(builder: (context) {
+              if (chatsProvider.chats.isEmpty) {
+                return SizedBox(
+                  height: double.infinity,
+                  width: double.infinity,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.max,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        'assets/robot1.png',
+                      ),
+                      Text(
+                        'Create a new bot \nto get started',
+                        style: TextStyle(
                           color: Colors.grey[800],
+                          fontSize: 15,
+                          fontWeight: FontWeight.w300,
                         ),
-                      ],
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                );
+              }
+
+              return ListView(
+                children: <Widget>[
+                  ...chatsProvider.chats.map(
+                    (chat) => GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {
+                        context.go(AppViews.chatDetails, extra: {
+                          'bot': chat.bot,
+                        });
+                      },
+                      child: Column(
+                        children: [
+                          ChatTile(
+                            chat: chat,
+                          ),
+                          Divider(
+                            color: Colors.grey[800],
+                          ),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
           ),
         );
       },
@@ -82,12 +110,9 @@ class _ChatTileState extends State<ChatTile> {
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
-          const CircleAvatar(
-            radius: 25,
-            backgroundImage: NetworkImage(
-              'https://picsum.photos/200/300',
-            ),
-          ),
+          CircleAvatar(
+              radius: 25,
+              backgroundImage: AssetImage(ImageAssets.randomRobot())),
           const SizedBox(
             width: 10,
           ),

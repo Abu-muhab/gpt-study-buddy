@@ -5,6 +5,29 @@ import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 
 enum CreateAssistantStep { name, usefulness, trait, language, interests }
 
+List<Map<String, dynamic>> traits = [
+  {
+    "text": "Professional",
+    "subText":
+        "The AI assistant speaks in a formal and respectful tone, using appropriate titles and language in business and work-related contexts.",
+  },
+  {
+    "text": "Witty",
+    "subText":
+        "The AI assistant has a quick and clever sense of humor, using puns, jokes, and pop culture references to entertain and engage the user",
+  },
+  {
+    "text": "Informative",
+    "subText":
+        "The AI assistant has a serious and informative personality, providing detailed and accurate information on a variety of topics",
+  },
+  {
+    "text": "Supportive",
+    "subText":
+        "The AI assistant has a nurturing and empathetic personality, providing encouragement and emotional support to the user.",
+  },
+];
+
 class CreateBotViewmodel extends ChangeNotifier {
   CreateBotViewmodel({
     required this.botService,
@@ -125,11 +148,8 @@ class CreateBotViewmodel extends ChangeNotifier {
   }
 
   String getBotSummary() {
-    return "Name: $name\n"
-        "Usefulness: $helfulness\n"
-        "Trait: $trait\n"
-        "Language: $language\n"
-        "Interests: ${interests.join(", ")}";
+    return "$name is an AI assistant that is $helfulness and speaks $language. ${traits.firstWhere((element) => element["text"] == trait)["subText"]}}."
+        "$name is interested in ${interests.join(", ")}";
   }
 
   void reset({bool notifyAllListeners = true}) {
