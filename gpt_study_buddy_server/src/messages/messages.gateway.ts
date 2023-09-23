@@ -7,8 +7,11 @@ import { randomUUID } from 'crypto';
 import { BotsRepository } from 'src/bots/bots.repository';
 import { GptService } from 'src/messages/gpt.service';
 import { Message } from './message.model';
+import { UseGuards } from '@nestjs/common';
+import { WsGuard } from './ws.guard';
 
 @WebSocketGateway()
+@UseGuards(WsGuard)
 export class MessagesGateway {
   constructor(
     private gptService: GptService,
