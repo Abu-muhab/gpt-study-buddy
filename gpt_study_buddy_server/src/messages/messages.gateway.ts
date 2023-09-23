@@ -3,16 +3,16 @@ import {
   SubscribeMessage,
   WebSocketGateway,
 } from '@nestjs/websockets';
-import { GptService } from './gpt.service';
-import { Message } from './models/message';
 import { randomUUID } from 'crypto';
-import { ChatBotRepository } from './chat_bot_repo';
+import { BotsRepository } from 'src/bots/bots.repository';
+import { GptService } from 'src/messages/gpt.service';
+import { Message } from './message.model';
 
 @WebSocketGateway()
-export class ChatGateway {
+export class MessagesGateway {
   constructor(
     private gptService: GptService,
-    private chatBotRepository: ChatBotRepository,
+    private chatBotRepository: BotsRepository,
   ) {}
 
   @SubscribeMessage('message')
@@ -20,7 +20,7 @@ export class ChatGateway {
     const messages = payload.messages as Message[];
     const botId = payload.chatBotId;
 
-    const chatBot = this.chatBotRepository.getChatBotById(botId);
+    const chatBot = await this.chatBotRepository.findById(botId);
 
     const prompt = await this.gptService.getCompletetionFromMessages(
       payload.userId,

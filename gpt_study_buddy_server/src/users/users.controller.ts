@@ -1,18 +1,56 @@
 import { Body, Controller, Post, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserRequest, UserDto } from './user.dto';
+import {
+  AuthResponse,
+  CreateUserRequest,
+  LoginRequest,
+  UserDto,
+} from './user.dto';
 import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
 import { HttpDomainExceptionFilter } from 'src/common/http_domain_exception_filter';
+import { AuthService } from './auth.service';
+import { UsersRepository } from './user.repository';
 
 @Controller('users')
 @UseFilters(HttpDomainExceptionFilter)
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   @Post()
-  @ApiCreatedResponse({ type: UserDto })
+  @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'Create a new user' })
-  async createUser(@Body() body: CreateUserRequest): Promise<UserDto> {
-    return UserDto.fromDomain(await this.usersService.createUser(body));
+  async createUser(@Body() body: CreateUserRequest): Promise<AuthResponse> {
+    const userDto = UserDto.fromDomain(
+      await this.usersService.createUser(body),
+    );
+
+    const token = await this.authService.login({
+      email: body.email,
+      password: body.password,
+    });
+
+    return {
+      token,
+      user: userDto,
+    };
+  }
+
+  @Post('login')
+  @ApiCreatedResponse({ type: AuthResponse })
+  @ApiOperation({ summary: 'Login' })
+  async login(@Body() body: LoginRequest): Promise<AuthResponse> {
+    return {
+      token: await this.authService.login({
+        email: body.email,
+        password: body.password,
+      }),
+      user: UserDto.fromDomain(
+        await this.usersRepository.findByEmail(body.email),
+      ),
+    };
   }
 }

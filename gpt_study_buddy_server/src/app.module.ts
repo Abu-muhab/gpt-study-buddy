@@ -1,13 +1,30 @@
-import { Module } from '@nestjs/common';
-import { ChatGateway } from './chat.gateway';
-import { GptService } from './gpt.service';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  RequestMethod,
+} from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { ChatBotRepository } from './chat_bot_repo';
 import { UsersModule } from './users/users.module';
+import { MessagesModule } from './messages/messages.module';
+import { BotsModule } from './bots/bots.module';
+import { AuthMiddleware } from './users/auth.middleware';
+import { UsersController } from './users/users.controller';
+import { BotsController } from './bots/bots.controller';
 
 @Module({
-  imports: [ConfigModule.forRoot(), UsersModule],
+  imports: [ConfigModule.forRoot(), UsersModule, MessagesModule, BotsModule],
   controllers: [],
-  providers: [ChatGateway, GptService, ChatBotRepository],
+  providers: [],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(AuthMiddleware)
+      .exclude(
+        { path: 'users', method: RequestMethod.POST },
+        { path: 'users/login', method: RequestMethod.POST },
+      )
+      .forRoutes(UsersController, BotsController);
+  }
+}

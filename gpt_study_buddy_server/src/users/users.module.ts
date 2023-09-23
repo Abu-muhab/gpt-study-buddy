@@ -7,12 +7,14 @@ import {
 } from './user.repository';
 import { CryptoService } from './crytpo.service';
 import { UsersController } from './users.controller';
+import { AuthService } from './auth.service';
 
 @Module({
   providers: [
     //services
     UsersService,
     CryptoService,
+    AuthService,
 
     //repositories
     {
@@ -24,5 +26,6 @@ import { UsersController } from './users.controller';
     UserMappper,
   ],
   controllers: [UsersController],
+  exports: [UsersRepository, CryptoService],
 })
 export class UsersModule {}

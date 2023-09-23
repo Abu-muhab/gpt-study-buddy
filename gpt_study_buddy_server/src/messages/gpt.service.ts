@@ -1,15 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import axios from 'axios';
-import { Message } from './models/message';
-import { ChatBotRepository } from './chat_bot_repo';
-import { ChatBot } from './models/chat_bot';
+import { Message } from './message.model.js';
+import { Bot } from 'src/bots/bot.model.js';
 
 @Injectable()
 export class GptService {
-  private async getCompletion(
-    prompt: string,
-    chatBot: ChatBot,
-  ): Promise<string> {
+  private async getCompletion(prompt: string, chatBot: Bot): Promise<string> {
     try {
       const response = await axios.post(
         'https://api.openai.com/v1/completions',
@@ -39,7 +35,7 @@ export class GptService {
   async getCompletetionFromMessages(
     userId: string,
     messages: Message[],
-    chatBot: ChatBot,
+    chatBot: Bot,
   ): Promise<string> {
     let prompt = chatBot.description + '\n';
     messages.forEach((message) => {

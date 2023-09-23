@@ -32,6 +32,26 @@ export class UserDto {
   }
 }
 
+export class AuthResponse {
+  @ApiProperty()
+  @IsString()
+  token: string;
+
+  @ApiProperty()
+  user: UserDto;
+}
+
+export class LoginRequest {
+  @ApiProperty()
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
+
+  @ApiProperty()
+  @IsString()
+  password: string;
+}
+
 export class CreateUserRequest {
   @ApiProperty()
   @IsString()
