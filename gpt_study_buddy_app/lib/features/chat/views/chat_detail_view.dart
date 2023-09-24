@@ -28,10 +28,14 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   Timer? scrollDebounceTimer;
 
   void _scrollToTop() {
-    scrollDebounceTimer?.cancel();
-    scrollDebounceTimer = Timer(const Duration(milliseconds: 100), () {
-      scrollController.jumpTo(0);
-    });
+    try {
+      scrollDebounceTimer?.cancel();
+      scrollDebounceTimer = Timer(const Duration(milliseconds: 100), () {
+        if (scrollController.hasClients) {
+          scrollController.jumpTo(0);
+        }
+      });
+    } catch (_) {}
   }
 
   @override
