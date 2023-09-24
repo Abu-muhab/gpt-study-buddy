@@ -24,6 +24,6 @@ import { UsersController } from './users.controller';
     UserMappper,
   ],
   controllers: [UsersController],
-  exports: [UsersRepository, CryptoService],
+  exports: [UsersRepository, CryptoService, UsersService],
 })
 export class UsersModule {}
