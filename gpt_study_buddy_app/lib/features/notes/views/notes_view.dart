@@ -58,24 +58,28 @@ class NotesPreview extends StatelessWidget {
     return Column(
       children: [
         ListTile(
-          title: const Text(
-            'Note 1',
-            style: TextStyle(
+          title: Text(
+            note.title ?? "",
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w700,
               fontSize: 20,
             ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
           ),
-          subtitle: const Text(
-            'This is a note',
-            style: TextStyle(
+          subtitle: Text(
+            note.content ?? "",
+            style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w400,
               fontSize: 15,
             ),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
           ),
           trailing: Text(
-            DateFormat('dd MMM kk:mm').format(DateTime.now()),
+            DateFormat('dd MMM kk:mm').format(note.lastUpdated),
             style: const TextStyle(
               color: Colors.white,
               fontWeight: FontWeight.w400,

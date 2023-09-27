@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:gpt_study_buddy/common/http_client.dart';
@@ -39,6 +41,7 @@ class NotesService {
       }
       return notes;
     } else {
+      log(response.errorMessage.toString());
       throw DomainException(response.errorMessage);
     }
   }
