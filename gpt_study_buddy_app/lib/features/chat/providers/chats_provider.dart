@@ -28,6 +28,13 @@ class ChatsProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _failedFetch = false;
+  bool get failedFetch => _failedFetch;
+  set failedFetch(bool value) {
+    _failedFetch = value;
+    notifyListeners();
+  }
+
   List<Chat> _chats = [];
   List<Chat> get chats => _chats;
   set chats(List<Chat> value) {
@@ -44,7 +51,13 @@ class ChatsProvider extends ChangeNotifier {
 
   Future<void> fetchChats() async {
     try {
+      if (isLoading) {
+        return;
+      }
+
       isLoading = true;
+      failedFetch = false;
+
       final List<Bot> bots = await botService.getBots();
       final List<Chat> chats = <Chat>[];
 
@@ -62,6 +75,7 @@ class ChatsProvider extends ChangeNotifier {
       this.chats = chats;
     } catch (err, stack) {
       log('fetchChats error: $err, stack: $stack');
+      failedFetch = true;
     } finally {
       isLoading = false;
     }

@@ -8,6 +8,8 @@ import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart
 import 'package:gpt_study_buddy/features/chat/data/message_repo.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
+import 'package:gpt_study_buddy/features/notes/notes_service.dart';
+import 'package:gpt_study_buddy/features/notes/providers/notes_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 final sl = GetIt.instance;
@@ -26,6 +28,7 @@ Future<void> injectDependencies() async {
   sl.registerLazySingleton<AuthService>(
       () => AuthService(autTokenRep: sl(), httpClient: sl()));
   sl.registerLazySingleton<BotService>(() => BotService(httpClient: sl()));
+  sl.registerLazySingleton<NotesService>(() => NotesService(httpClient: sl()));
 
   //providers
   sl.registerLazySingleton<AuthServiceProvider>(
@@ -36,4 +39,6 @@ Future<void> injectDependencies() async {
       () => CreateBotViewmodel(botService: sl(), chatsProvider: sl()));
   sl.registerLazySingleton<ChatDetailsViewModel>(() =>
       ChatDetailsViewModel(messageRepository: sl(), authServiceProvider: sl()));
+  sl.registerLazySingleton<NotesProvider>(
+      () => NotesProvider(notesService: sl(), authServiceProvider: sl()));
 }

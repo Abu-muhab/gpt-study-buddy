@@ -8,6 +8,7 @@ import "package:gpt_study_buddy/features/bot/views/create_bot_view/create_bot_vi
 import "package:gpt_study_buddy/features/chat/views/chat_detail_view.dart";
 import "package:gpt_study_buddy/features/home.dart";
 import "package:gpt_study_buddy/features/navigation/app_views.dart";
+import "package:gpt_study_buddy/features/notes/views/create_notes_view.dart";
 import "package:gpt_study_buddy/injection_container.dart";
 
 final GoRouter appRouter = GoRouter(
@@ -42,6 +43,12 @@ final GoRouter appRouter = GoRouter(
             builder: (BuildContext context, GoRouterState state) {
               final Bot bot = (state.extra! as Map<String, dynamic>)['bot'];
               return ChatDetailView(bot: bot);
+            },
+          ),
+          GoRoute(
+            path: AppViews.resolveSubRoute(AppViews.createNotes, AppViews.home),
+            builder: (BuildContext context, GoRouterState state) {
+              return CreateNotesView();
             },
           ),
         ]),

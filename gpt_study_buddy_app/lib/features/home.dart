@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:gpt_study_buddy/common/colors.dart';
 import 'package:gpt_study_buddy/features/chat/views/chats_view.dart';
 import 'package:gpt_study_buddy/features/navigation/app_views.dart';
+import 'package:gpt_study_buddy/features/notes/views/notes_view.dart';
 import 'package:gpt_study_buddy/features/tab_scaffold.dart';
 
 class Home extends StatelessWidget {
@@ -26,14 +26,14 @@ class Home extends StatelessWidget {
       HomeViewTabItem(
         name: 'Notes',
         icon: const Icon(Icons.note),
-        child: Container(
-          color: AppColors.primaryColor[100],
-        ),
+        child: const NotesView(),
         fabIcon: const Icon(
           Icons.note_add,
           color: Colors.white,
         ),
-        fabOnPressed: () {},
+        fabOnPressed: () {
+          context.go(AppViews.createNotes);
+        },
       ),
     ]);
   }

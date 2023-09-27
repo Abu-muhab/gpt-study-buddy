@@ -6,6 +6,7 @@ import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 import 'package:gpt_study_buddy/features/navigation/app_router.dart';
+import 'package:gpt_study_buddy/features/notes/providers/notes_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'injection_container.dart';
@@ -28,6 +29,9 @@ Future<void> main() async {
       ChangeNotifierProvider<ChatDetailsViewModel>(
         create: (context) => sl(),
       ),
+      ChangeNotifierProvider<NotesProvider>(
+        create: (context) => sl(),
+      ),
     ],
     child: const MyApp(),
   ));
@@ -39,7 +43,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      title: 'ChatABC',
+      title: 'ChatBuddy',
       theme: ThemeData(
         primarySwatch: AppColors.primaryColor,
       ),

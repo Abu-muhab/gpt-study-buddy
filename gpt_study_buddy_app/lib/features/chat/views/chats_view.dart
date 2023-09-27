@@ -8,6 +8,7 @@ import 'package:gpt_study_buddy/features/navigation/app_views.dart';
 import 'package:provider/provider.dart';
 
 import '../../../common/colors.dart';
+import '../../../common/retry_widget.dart';
 
 class ChatsView extends StatelessWidget {
   const ChatsView({super.key});
@@ -20,57 +21,69 @@ class ChatsView extends StatelessWidget {
           isLoading: chatsProvider.isLoading,
           body: Container(
             color: AppColors.primaryColor[100],
-            child: Builder(builder: (context) {
-              if (chatsProvider.chats.isEmpty) {
-                return SizedBox(
-                  height: double.infinity,
-                  width: double.infinity,
-                  child: Column(
+            child: chatsProvider.failedFetch
+                ? Column(
                     mainAxisSize: MainAxisSize.max,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Image.asset(
-                        'assets/robot1.png',
-                      ),
-                      Text(
-                        'Create a new bot \nto get started',
-                        style: TextStyle(
-                          color: Colors.grey[800],
-                          fontSize: 15,
-                          fontWeight: FontWeight.w300,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
+                      RetryWidget(
+                        onRetry: () {
+                          chatsProvider.fetchChats();
+                        },
+                      )
                     ],
-                  ),
-                );
-              }
+                  )
+                : Builder(builder: (context) {
+                    if (chatsProvider.chats.isEmpty) {
+                      return SizedBox(
+                        height: double.infinity,
+                        width: double.infinity,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Image.asset(
+                              'assets/robot1.png',
+                            ),
+                            Text(
+                              'Create a new bot \nto get started',
+                              style: TextStyle(
+                                color: Colors.grey[800],
+                                fontSize: 15,
+                                fontWeight: FontWeight.w300,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
+                        ),
+                      );
+                    }
 
-              return ListView(
-                children: <Widget>[
-                  ...chatsProvider.chats.map(
-                    (chat) => GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () {
-                        context.go(AppViews.chatDetails, extra: {
-                          'bot': chat.bot,
-                        });
-                      },
-                      child: Column(
-                        children: [
-                          ChatTile(
-                            chat: chat,
+                    return ListView(
+                      children: <Widget>[
+                        ...chatsProvider.chats.map(
+                          (chat) => GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              context.go(AppViews.chatDetails, extra: {
+                                'bot': chat.bot,
+                              });
+                            },
+                            child: Column(
+                              children: [
+                                ChatTile(
+                                  chat: chat,
+                                ),
+                                Divider(
+                                  color: Colors.grey[800],
+                                ),
+                              ],
+                            ),
                           ),
-                          Divider(
-                            color: Colors.grey[800],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              );
-            }),
+                        ),
+                      ],
+                    );
+                  }),
           ),
         );
       },
