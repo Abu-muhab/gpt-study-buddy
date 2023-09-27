@@ -7,8 +7,9 @@ import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:gpt_study_buddy/features/auth/data/dtos.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
 import 'package:gpt_study_buddy/features/navigation/app_views.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:provider/provider.dart';
+
+import '../../../common/colors.dart';
 
 class SignupView extends StatelessWidget {
   SignupView({super.key});
@@ -34,7 +35,7 @@ class SignupView extends StatelessWidget {
             child: Form(
               key: _formKey,
               child: Container(
-                color: primaryColor, // Change the background color
+                color: AppColors.primaryColor, // Change the background color
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -146,7 +147,7 @@ class SignupView extends StatelessWidget {
                           'Sign up',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: primaryColor[100]),
+                              color: AppColors.primaryColor[100]),
                         ),
                       ),
                       const SizedBox(height: 16.0),

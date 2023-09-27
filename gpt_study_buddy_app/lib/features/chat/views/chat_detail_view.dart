@@ -2,12 +2,12 @@ import 'dart:async';
 
 import 'package:diffutil_sliverlist/diffutil_sliverlist.dart';
 import 'package:flutter/material.dart';
+import 'package:gpt_study_buddy/common/colors.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot.dart';
 import 'package:gpt_study_buddy/features/chat/data/message.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/views/widgets/message_tile.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:provider/provider.dart';
 
 class ChatDetailView extends StatefulWidget {
@@ -71,10 +71,10 @@ class _ChatDetailViewState extends State<ChatDetailView> {
           ],
         ),
         body: Container(
-          color: primaryColor[100],
+          color: AppColors.primaryColor,
           child: SafeArea(
             child: Container(
-              color: primaryColor,
+              color: AppColors.primaryColor,
               child: Column(
                 children: [
                   Expanded(
@@ -133,7 +133,7 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 10),
                     height: 60,
-                    color: primaryColor[100],
+                    color: AppColors.primaryColor,
                     child: Row(
                       children: [
                         Expanded(

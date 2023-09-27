@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../../common/colors.dart';
 
 class PickNameTab extends StatefulWidget {
   const PickNameTab({
@@ -28,7 +29,7 @@ class _PickNameTabState extends State<PickNameTab> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(15),
-      color: primaryColor[100],
+      color: AppColors.primaryColor[100],
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

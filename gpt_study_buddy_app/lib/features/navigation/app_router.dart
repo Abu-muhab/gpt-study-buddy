@@ -6,7 +6,7 @@ import "package:gpt_study_buddy/features/auth/views/signup_view.dart";
 import "package:gpt_study_buddy/features/bot/data/bot.dart";
 import "package:gpt_study_buddy/features/bot/views/create_bot_view/create_bot_view.dart";
 import "package:gpt_study_buddy/features/chat/views/chat_detail_view.dart";
-import "package:gpt_study_buddy/features/chat/views/chats_view.dart";
+import "package:gpt_study_buddy/features/home.dart";
 import "package:gpt_study_buddy/features/navigation/app_views.dart";
 import "package:gpt_study_buddy/injection_container.dart";
 
@@ -22,25 +22,23 @@ final GoRouter appRouter = GoRouter(
     }
 
     if (isLoggedIn && isAuthRoute) {
-      return AppViews.chats;
+      return AppViews.home;
     }
 
     return null;
   },
   routes: <GoRoute>[
     GoRoute(
-        path: AppViews.chats,
-        builder: (BuildContext context, GoRouterState state) =>
-            const ChatsView(),
+        path: AppViews.home,
+        builder: (BuildContext context, GoRouterState state) => const Home(),
         routes: [
           GoRoute(
-            path: AppViews.resolveSubRoute(AppViews.createBot, AppViews.chats),
+            path: AppViews.resolveSubRoute(AppViews.createBot, AppViews.home),
             builder: (BuildContext context, GoRouterState state) =>
                 const CreateBotView(),
           ),
           GoRoute(
-            path:
-                AppViews.resolveSubRoute(AppViews.chatDetails, AppViews.chats),
+            path: AppViews.resolveSubRoute(AppViews.chatDetails, AppViews.home),
             builder: (BuildContext context, GoRouterState state) {
               final Bot bot = (state.extra! as Map<String, dynamic>)['bot'];
               return ChatDetailView(bot: bot);

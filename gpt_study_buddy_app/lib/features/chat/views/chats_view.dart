@@ -5,8 +5,9 @@ import 'package:gpt_study_buddy/common/image_assets.dart';
 import 'package:gpt_study_buddy/features/chat/data/chat.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 import 'package:gpt_study_buddy/features/navigation/app_views.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:provider/provider.dart';
+
+import '../../../common/colors.dart';
 
 class ChatsView extends StatelessWidget {
   const ChatsView({super.key});
@@ -17,19 +18,8 @@ class ChatsView extends StatelessWidget {
       builder: (context, chatsProvider, _) {
         return AppScaffold(
           isLoading: chatsProvider.isLoading,
-          appBar: AppBar(
-            title: const Text('Chats'),
-            centerTitle: false,
-            elevation: 0,
-          ),
-          floatingActionButton: FloatingActionButton(
-            onPressed: () {
-              context.go(AppViews.createBot);
-            },
-            child: const Icon(Icons.add),
-          ),
           body: Container(
-            color: primaryColor[100],
+            color: AppColors.primaryColor[100],
             child: Builder(builder: (context) {
               if (chatsProvider.chats.isEmpty) {
                 return SizedBox(

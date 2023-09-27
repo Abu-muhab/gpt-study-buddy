@@ -2,9 +2,10 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/features/chat/data/message.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
+
+import '../../../../common/colors.dart';
 
 class MessageTile extends StatelessWidget {
   const MessageTile({
@@ -66,7 +67,7 @@ class MessageTile extends StatelessWidget {
                     80),
                 padding: const EdgeInsets.all(messagePadding),
                 decoration: BoxDecoration(
-                  color: primaryColor[900],
+                  color: AppColors.primaryColor[900],
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Column(

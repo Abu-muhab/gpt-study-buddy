@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/common/app_scaffold.dart';
 import 'package:gpt_study_buddy/common/dialogs.dart';
 import 'package:gpt_study_buddy/common/exception.dart';
-import 'package:gpt_study_buddy/main.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../common/colors.dart';
 import '../../providers/create_bot_viewmodel.dart';
 import 'tabs/pick_name_tab.dart';
 import 'tabs/select_interests_tab.dart';
@@ -54,7 +54,7 @@ class _CreateBotViewState extends State<CreateBotView> {
             )),
         body: Container(
           width: double.infinity,
-          color: primaryColor[100],
+          color: AppColors.primaryColor[100],
           child: Column(
             children: [
               Expanded(
