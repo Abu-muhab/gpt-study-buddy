@@ -33,7 +33,7 @@ export class BotsController {
 
   @Get()
   @ApiOperation({ summary: 'Get all bots for a user' })
-  @ApiResponse({ type: BotDto, status: 200 })
+  @ApiResponse({ type: [BotDto], status: 200 })
   async getUserBots(@UserDecorator() user: User): Promise<BotDto[]> {
     const bots = await this.botsRepository.getUserBots(user.id);
     return bots.map((bot) => BotDto.fromDomain(bot));
