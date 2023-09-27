@@ -4,6 +4,7 @@ import { Message } from './message.model.js';
 import { UsersRepository } from '../users/user.repository.js';
 import { Bot } from '../bots/bot.model.js';
 import { BotsRepository } from '../bots/bots.repository.js';
+import { NotesRepository } from '../notes/notes.repository.js';
 
 interface CallableFunction {
   name: string;
@@ -16,6 +17,7 @@ export class GptService {
   constructor(
     private readonly userRepository: UsersRepository,
     private readonly botsRepository: BotsRepository,
+    private readonly notesRepository: NotesRepository,
   ) {}
 
   private async getChatCompletion(
@@ -148,6 +150,21 @@ export class GptService {
           },
         },
       },
+      {
+        name: 'get_user_notes',
+        description:
+          'Returns notes that the user with the given user id has created. Can include notes such as learning notes, meeting notes, etc.',
+        parameters: {
+          type: 'object',
+          required: ['userId'],
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The user id of the user to get bots from.',
+            },
+          },
+        },
+      },
     ];
 
     return callableFunctions;
@@ -164,6 +181,9 @@ export class GptService {
       case 'get_user_bots':
         const bots = await this.botsRepository.getUserBots(args.userId);
         return JSON.stringify(bots);
+      case 'get_user_notes':
+        const notes = await this.notesRepository.getUserNotes(args.userId);
+        return JSON.stringify(notes);
       default:
         return '';
     }

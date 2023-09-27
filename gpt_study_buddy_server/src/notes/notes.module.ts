@@ -17,5 +17,6 @@ import {
     NotesMapper,
   ],
   controllers: [NotesController],
+  exports: [NotesService, NotesRepository],
 })
 export class NotesModule {}
