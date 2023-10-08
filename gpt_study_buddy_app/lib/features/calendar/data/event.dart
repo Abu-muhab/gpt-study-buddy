@@ -17,6 +17,16 @@ class Event {
     );
   }
 
+  factory Event.defaults() {
+    return Event(
+      startTime: DateTime.now(),
+      endTime: DateTime.now().add(const Duration(hours: 1)),
+      isAllDay: false,
+      name: "",
+      id: null,
+    );
+  }
+
   final DateTime startTime;
   final DateTime endTime;
   final bool isAllDay;
@@ -47,5 +57,9 @@ class Event {
       name: name ?? this.name,
       id: id ?? this.id,
     );
+  }
+
+  bool get validEntries {
+    return name.isNotEmpty && startTime.isBefore(endTime);
   }
 }

@@ -39,12 +39,14 @@ class Home extends StatelessWidget {
       HomeViewTabItem(
         name: 'Calendar',
         icon: const Icon(Icons.calendar_month_outlined),
-        child: const CalendarTabView(),
+        child: CalendarTabView(),
         fabIcon: const Icon(
           Icons.edit_calendar_outlined,
           color: Colors.white,
         ),
-        fabOnPressed: () {},
+        fabOnPressed: () {
+          context.go(AppViews.createEvent);
+        },
       ),
     ]);
   }

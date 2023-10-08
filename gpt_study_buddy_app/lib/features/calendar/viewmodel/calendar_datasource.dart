@@ -44,4 +44,9 @@ class EventDataSource extends CalendarDataSource<Event> {
       notifyListeners(CalendarDataSourceAction.add, []);
     }
   }
+
+  void addEvent(Event event) {
+    appointments!.add(event);
+    notifyListeners(CalendarDataSourceAction.add, [event]);
+  }
 }

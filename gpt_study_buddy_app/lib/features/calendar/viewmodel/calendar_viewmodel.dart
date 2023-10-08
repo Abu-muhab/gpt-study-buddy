@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gpt_study_buddy/features/calendar/data/event.dart';
 import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_datasource.dart';
 
 class CalendarViewmodel extends ChangeNotifier {
@@ -14,4 +15,8 @@ class CalendarViewmodel extends ChangeNotifier {
   }
 
   final EventDataSource dataSource;
+
+  void addEvent(Event event) {
+    dataSource.addEvent(event);
+  }
 }

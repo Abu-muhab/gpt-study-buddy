@@ -6,6 +6,7 @@ class AppViews {
   static const String createBot = "/home/createbot";
   static const String chatDetails = "/home/chatdetails";
   static const String createNotes = "/home/createnotes";
+  static const String createEvent = "/home/create-event";
 
   static String resolveSubRoute(String subRoute, String parentRoute) {
     return subRoute.replaceAll(parentRoute, "").replaceAll("/", "");

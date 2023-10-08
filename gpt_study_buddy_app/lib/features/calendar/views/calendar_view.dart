@@ -8,7 +8,9 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
 class CalendarTabView extends StatelessWidget {
-  const CalendarTabView({super.key});
+  CalendarTabView({super.key});
+
+  final CalendarController _calendarController = CalendarController();
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +23,9 @@ class CalendarTabView extends StatelessWidget {
               data: SfCalendarThemeData(
                   brightness: Brightness.dark, todayHighlightColor: Colors.red),
               child: SfCalendar(
+                controller: _calendarController,
                 dataSource: calendarViewmodel.dataSource,
+                initialDisplayDate: DateTime.now(),
                 headerStyle: const CalendarHeaderStyle(
                   textStyle: TextStyle(
                     color: Colors.white,

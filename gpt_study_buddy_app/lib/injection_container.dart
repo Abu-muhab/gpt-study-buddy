@@ -8,6 +8,7 @@ import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart
 import 'package:gpt_study_buddy/features/calendar/data/event_repo.dart';
 import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_datasource.dart';
 import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_viewmodel.dart';
+import 'package:gpt_study_buddy/features/calendar/viewmodel/create_event_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/data/message_repo.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
@@ -49,7 +50,8 @@ Future<void> injectDependencies() async {
       () => NotesProvider(notesService: sl(), authServiceProvider: sl()));
   sl.registerLazySingleton<EventDataSource>(
       () => EventDataSource(eventRepository: sl()));
-  sl.registerLazySingleton<CalendarViewmodel>(() => CalendarViewmodel(
-        dataSource: sl(),
-      ));
+  sl.registerLazySingleton<CalendarViewmodel>(
+      () => CalendarViewmodel(dataSource: sl()));
+  sl.registerLazySingleton<CreateEventViewModel>(() =>
+      CreateEventViewModel(eventRepository: sl(), calendarViewmodel: sl()));
 }

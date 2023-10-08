@@ -40,7 +40,7 @@ class CreateNotesView extends StatelessWidget {
                             content: Text(e.message),
                           ),
                         );
-                      } catch (e) {
+                      } catch (_) {
                         showUnexpectedErrorToast(context);
                       }
                     }
