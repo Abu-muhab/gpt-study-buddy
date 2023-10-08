@@ -26,6 +26,10 @@ class AppHttpClient {
         response: jsonDecode(response.body),
       );
     } else {
+      if (response.statusCode == 401) {
+        await authTokenRepo.deleteAuthToken();
+      }
+
       return FailureOrResponse(
         response: null,
         isSuccess: false,
@@ -50,6 +54,10 @@ class AppHttpClient {
         response: jsonDecode(response.body),
       );
     } else {
+      if (response.statusCode == 401) {
+        await authTokenRepo.deleteAuthToken();
+      }
+
       return FailureOrResponse(
         response: null,
         isSuccess: false,

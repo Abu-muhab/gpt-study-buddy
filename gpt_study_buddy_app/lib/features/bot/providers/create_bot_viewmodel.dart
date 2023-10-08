@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gpt_study_buddy/features/bot/bot_service.dart';
+import 'package:gpt_study_buddy/features/bot/data/bot_service.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 

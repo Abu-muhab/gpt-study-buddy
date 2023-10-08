@@ -22,4 +22,27 @@ class AuthTokenRepo {
 
     return AuthToken.fromMap(authDataMap);
   }
+
+  AuthToken? lastSavedAuthToken;
+  Stream<AuthToken?> getAuthTokenStream() async* {
+    while (true) {
+      AuthToken? authToken = await getAuthToken();
+      if (lastSavedAuthToken == null && authToken != null) {
+        yield authToken;
+        lastSavedAuthToken = authToken;
+      }
+
+      if (authToken != lastSavedAuthToken) {
+        yield authToken;
+        lastSavedAuthToken = authToken;
+      }
+
+      await Future.delayed(const Duration(milliseconds: 500));
+    }
+  }
+
+  Future<void> deleteAuthToken() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('authData');
+  }
 }

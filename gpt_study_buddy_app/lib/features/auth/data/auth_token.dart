@@ -32,4 +32,16 @@ class AuthToken {
       'token': token,
     };
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+
+    return other is AuthToken &&
+        other.user?.id == user?.id &&
+        other.token == token;
+  }
+
+  @override
+  int get hashCode => user.hashCode ^ token.hashCode;
 }

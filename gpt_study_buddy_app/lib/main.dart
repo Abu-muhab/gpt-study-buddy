@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gpt_study_buddy/common/colors.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
 import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart';
+import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
 import 'package:gpt_study_buddy/features/navigation/app_router.dart';
@@ -27,6 +28,9 @@ Future<void> main() async {
         create: (context) => sl(),
       ),
       ChangeNotifierProvider<ChatDetailsViewModel>(
+        create: (context) => sl(),
+      ),
+      ChangeNotifierProvider<CalendarViewmodel>(
         create: (context) => sl(),
       ),
       ChangeNotifierProvider<NotesProvider>(

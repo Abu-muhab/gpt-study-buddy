@@ -3,7 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
 import 'package:gpt_study_buddy/features/notes/data/note.dart';
-import 'package:gpt_study_buddy/features/notes/notes_service.dart';
+import 'package:gpt_study_buddy/features/notes/data/notes_service.dart';
 
 class NotesProvider extends ChangeNotifier {
   NotesProvider({

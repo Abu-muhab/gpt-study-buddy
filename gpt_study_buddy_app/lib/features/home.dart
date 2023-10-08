@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:gpt_study_buddy/features/calendar/views/calendar_view.dart';
 import 'package:gpt_study_buddy/features/chat/views/chats_view.dart';
 import 'package:gpt_study_buddy/features/navigation/app_views.dart';
 import 'package:gpt_study_buddy/features/notes/views/notes_view.dart';
@@ -34,6 +35,16 @@ class Home extends StatelessWidget {
         fabOnPressed: () {
           context.go(AppViews.createNotes);
         },
+      ),
+      HomeViewTabItem(
+        name: 'Calendar',
+        icon: const Icon(Icons.calendar_month_outlined),
+        child: const CalendarTabView(),
+        fabIcon: const Icon(
+          Icons.edit_calendar_outlined,
+          color: Colors.white,
+        ),
+        fabOnPressed: () {},
       ),
     ]);
   }

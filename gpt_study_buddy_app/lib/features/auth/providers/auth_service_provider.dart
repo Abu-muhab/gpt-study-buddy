@@ -56,14 +56,10 @@ class AuthServiceProvider extends ChangeNotifier {
   }
 
   Future<void> init() async {
-    try {
-      isLoading = true;
-      setLoggedInState(await autTokenRep.getAuthToken());
-      isLoading = false;
-    } catch (e) {
-      isLoading = false;
-      rethrow;
-    }
+    autTokenRep.getAuthTokenStream().listen((event) {
+      authToken = event;
+      isLoggedInNotifier.value = isLoggedIn;
+    });
   }
 
   void setLoggedInState(AuthToken? authToken) {

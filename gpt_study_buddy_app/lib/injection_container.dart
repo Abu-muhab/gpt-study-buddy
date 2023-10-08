@@ -3,12 +3,15 @@ import 'package:gpt_study_buddy/common/http_client.dart';
 import 'package:gpt_study_buddy/features/auth/auth_service.dart';
 import 'package:gpt_study_buddy/features/auth/data/auth_token_repo.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
-import 'package:gpt_study_buddy/features/bot/bot_service.dart';
+import 'package:gpt_study_buddy/features/bot/data/bot_service.dart';
 import 'package:gpt_study_buddy/features/bot/providers/create_bot_viewmodel.dart';
+import 'package:gpt_study_buddy/features/calendar/data/event_repo.dart';
+import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_datasource.dart';
+import 'package:gpt_study_buddy/features/calendar/viewmodel/calendar_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/data/message_repo.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chat_details_viewmodel.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
-import 'package:gpt_study_buddy/features/notes/notes_service.dart';
+import 'package:gpt_study_buddy/features/notes/data/notes_service.dart';
 import 'package:gpt_study_buddy/features/notes/providers/notes_provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -23,6 +26,9 @@ Future<void> injectDependencies() async {
       () => AppHttpClient(authTokenRepo: sl()));
   sl.registerLazySingleton<MessageRepository>(() => MessageRepository(
       sharedPreferences: sharedPreferences, authServiceProvider: sl()));
+  sl.registerLazySingleton<EventRepository>(() => EventRepository(
+        httpClient: sl(),
+      ));
 
   //services
   sl.registerLazySingleton<AuthService>(
@@ -41,4 +47,9 @@ Future<void> injectDependencies() async {
       ChatDetailsViewModel(messageRepository: sl(), authServiceProvider: sl()));
   sl.registerLazySingleton<NotesProvider>(
       () => NotesProvider(notesService: sl(), authServiceProvider: sl()));
+  sl.registerLazySingleton<EventDataSource>(
+      () => EventDataSource(eventRepository: sl()));
+  sl.registerLazySingleton<CalendarViewmodel>(() => CalendarViewmodel(
+        dataSource: sl(),
+      ));
 }

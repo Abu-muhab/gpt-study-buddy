@@ -2,7 +2,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart';
-import 'package:gpt_study_buddy/features/bot/bot_service.dart';
+import 'package:gpt_study_buddy/features/bot/data/bot_service.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot.dart';
 import 'package:gpt_study_buddy/features/chat/data/chat.dart';
 import 'package:gpt_study_buddy/features/chat/data/message.dart';
