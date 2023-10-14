@@ -27,4 +27,12 @@ export class EventsService {
     await this.eventsRepository.add(event);
     return event;
   }
+
+  async createEvents(params: Partial<Event>[]): Promise<Event[]> {
+    const events = [];
+    for (const event of params) {
+      events.push(await this.createEvent(event));
+    }
+    return events;
+  }
 }

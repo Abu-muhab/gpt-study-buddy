@@ -1,3 +1,5 @@
+import { CompletionCreatedResource } from './gpt.service';
+
 export interface Message {
   message: string;
   senderId: string;
@@ -5,4 +7,5 @@ export interface Message {
   type: string;
   timestamp: Date;
   messageId: string;
+  createdResources?: CompletionCreatedResource[];
 }

@@ -7,11 +7,26 @@ import { BotsRepository } from '../bots/bots.repository.js';
 import { NotesRepository } from '../notes/notes.repository.js';
 import { EventsService } from '../events/events.service.js';
 import { EventsRepository } from '../events/events.repository.js';
+import { EventDto } from '../events/events.dto.js';
 
 interface CallableFunction {
   name: string;
   description: string;
   parameters?: object;
+}
+
+export enum CompletionCreatedResourceType {
+  event = 'event',
+}
+
+export interface CompletionCreatedResource {
+  type: CompletionCreatedResourceType;
+  resource: Object;
+}
+
+export interface CompletionResult {
+  completion: string;
+  createdResources: CompletionCreatedResource[];
 }
 
 @Injectable()
@@ -30,8 +45,23 @@ export class GptService {
       content: string;
       name?: string;
     }[],
+    systemMessages: {
+      role: string;
+      content: string;
+      name?: string;
+    }[],
     chatBot: Bot,
-  ): Promise<string | undefined | null> {
+    createdResources?: CompletionCreatedResource[],
+  ): Promise<CompletionResult> {
+    if (createdResources == null || createdResources == undefined) {
+      createdResources = [];
+    }
+
+    if (messages.length > 10) {
+      messages = messages.slice(messages.length - 10, messages.length);
+    }
+    messages = [...systemMessages, ...messages];
+
     try {
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
@@ -43,6 +73,7 @@ export class GptService {
           presence_penalty: 1,
           frequency_penalty: 1,
           functions: this.callableFunctions,
+          stream: false,
         },
         {
           headers: {
@@ -59,15 +90,17 @@ export class GptService {
         );
         const requiresArguments = !!callableFunction.parameters;
 
-        const args: Object = JSON.parse(
+        let args: Object = JSON.parse(
           responseMessage['function_call']['arguments'],
         );
 
         if (callableFunction == null || (requiresArguments && args == null)) {
-          return null;
+          return {
+            completion: null,
+            createdResources: [],
+          };
         }
 
-        console.log(`calling function ${callableFunction.name}`);
         const functionResponse = await this.callCallableFunction(
           callableFunction,
           args,
@@ -77,19 +110,33 @@ export class GptService {
         messages.push({
           role: 'function',
           name: callableFunction.name,
-          content: functionResponse,
+          content: functionResponse.result,
         });
 
-        return await this.getChatCompletion(messages, chatBot);
+        createdResources.push(...functionResponse.createdResources);
+        return await this.getChatCompletion(
+          messages,
+          systemMessages,
+          chatBot,
+          createdResources,
+        );
       }
 
-      return responseMessage.content;
+      return {
+        completion: responseMessage.content,
+        createdResources: createdResources,
+      };
     } catch (e) {
       if (e.response) {
         console.log(e.response.headers, e.response.status, e.response.data);
       } else {
         console.log(e);
       }
+
+      return {
+        completion: null,
+        createdResources: [],
+      };
     }
   }
 
@@ -97,7 +144,7 @@ export class GptService {
     userId: string,
     messages: Message[],
     chatBot: Bot,
-  ): Promise<string> {
+  ): Promise<CompletionResult> {
     const systemMessgages = [
       {
         role: 'system',
@@ -105,13 +152,16 @@ export class GptService {
       },
       {
         role: 'system',
-        content: "The id of the user you're talking to is " + userId,
+        content: 'Current userId: ' + userId,
+      },
+      {
+        role: 'system',
+        content: 'Do',
       },
     ];
 
     return await this.getChatCompletion(
       [
-        ...systemMessgages,
         ...messages.map((m) => {
           return {
             role: 'user',
@@ -119,6 +169,7 @@ export class GptService {
           };
         }),
       ],
+      systemMessgages,
       chatBot,
     );
   }
@@ -173,7 +224,7 @@ export class GptService {
       {
         name: 'get_current_date_time',
         description:
-          'Returns the current date and time in the ISO string format.',
+          'This function returns the current date and time in the ISO string format (e.g., 2021-06-13T15:00:00.000Z). Use it when you need to calculate future dates in reference to the current date and time.',
         parameters: {
           type: 'object',
           required: [],
@@ -183,7 +234,7 @@ export class GptService {
       {
         name: 'create_event',
         description:
-          'Creates an event for the user with the given user id and adds it to the users schedule/calendar.',
+          "Create an event for the user with the given user ID and add it to the user's schedule or calendar. Use this only when you need to add a single event.",
         parameters: {
           type: 'object',
           required: ['userId', 'name', 'startDate', 'endDate', 'isAllDay'],
@@ -198,11 +249,13 @@ export class GptService {
             },
             startDate: {
               type: 'string',
-              description: 'The start date of the event in ISO string format.',
+              description:
+                'The start date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
             },
             endDate: {
               type: 'string',
-              description: 'The end date of the event in ISO string format.',
+              description:
+                'The end date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
             },
             isAllDay: {
               type: 'boolean',
@@ -225,11 +278,13 @@ export class GptService {
             },
             startDate: {
               type: 'string',
-              description: 'The start date of the event in ISO string format.',
+              description:
+                'The start date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
             },
             endDate: {
               type: 'string',
-              description: 'The end date of the event in ISO string format.',
+              description:
+                'The end date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
             },
           },
         },
@@ -242,18 +297,31 @@ export class GptService {
   private async callCallableFunction(
     callableFunction: CallableFunction,
     args: any,
-  ): Promise<string> {
+  ): Promise<{
+    result: string;
+    createdResources: CompletionCreatedResource[];
+  }> {
     switch (callableFunction.name) {
       case 'get_user_information':
         const response = await this.userRepository.findById(args.userId);
-        return JSON.stringify(response);
+        return {
+          result: JSON.stringify(response),
+          createdResources: [],
+        };
       case 'get_user_bots':
         const bots = await this.botsRepository.getUserBots(args.userId);
-        return JSON.stringify(bots);
+        return {
+          result: JSON.stringify(bots),
+          createdResources: [],
+        };
       case 'get_user_notes':
         const notes = await this.notesRepository.getUserNotes(args.userId);
-        return JSON.stringify(notes);
+        return {
+          result: JSON.stringify(notes),
+          createdResources: [],
+        };
       case 'create_event':
+        console.log(args.userId);
         const event = await this.eventsService.createEvent({
           userId: args.userId,
           name: args.name,
@@ -261,19 +329,37 @@ export class GptService {
           endDate: new Date(args.endDate),
           isAllDay: args.isAllDay,
         });
-        return JSON.stringify(event);
+        return {
+          result: JSON.stringify(event),
+          createdResources: [
+            {
+              type: CompletionCreatedResourceType.event,
+              resource: EventDto.fromDomain(event),
+            },
+          ],
+        };
       case 'get_current_date_time':
         const date = new Date();
-        return date.toISOString();
+        return {
+          result: date.toISOString(),
+          createdResources: [],
+        };
       case 'get_events':
-        const events = await this.eventsRepository.getUserEventBetweenDates({
-          userId: args.userId,
-          startDate: new Date(args.startDate),
-          endDate: new Date(args.endDate),
-        });
-        return JSON.stringify(events);
+        return {
+          result: JSON.stringify(
+            await this.eventsRepository.getUserEventBetweenDates({
+              userId: args.userId,
+              startDate: new Date(args.startDate),
+              endDate: new Date(args.endDate),
+            }),
+          ),
+          createdResources: [],
+        };
       default:
-        return '';
+        return {
+          result: '',
+          createdResources: [],
+        };
     }
   }
 }

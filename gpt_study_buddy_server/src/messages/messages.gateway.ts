@@ -25,19 +25,35 @@ export class MessagesGateway {
 
     const chatBot = await this.chatBotRepository.findById(botId);
 
-    const prompt = await this.gptService.getCompletetionFromMessages(
+    const completionResult = await this.gptService.getCompletetionFromMessages(
       payload.userId,
       messages,
       chatBot,
     );
 
+    if (!completionResult.completion) {
+      return {
+        event: 'message',
+        data: {
+          message:
+            'Sorry, i encountered an error processing your request. can you try again?',
+          senderId: chatBot.id,
+          receiverId: payload.userId,
+          type: 'text',
+          timestamp: new Date(),
+          messageId: randomUUID(),
+        },
+      };
+    }
+
     const messsage: Message = {
-      message: prompt,
+      message: completionResult.completion,
       senderId: chatBot.id,
       receiverId: payload.userId,
       type: 'text',
       timestamp: new Date(),
       messageId: randomUUID(),
+      createdResources: completionResult.createdResources,
     };
 
     return {
