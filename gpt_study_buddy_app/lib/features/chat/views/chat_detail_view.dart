@@ -64,10 +64,36 @@ class _ChatDetailViewState extends State<ChatDetailView> {
           title: Text(viewmodel.bot?.name ?? ""),
           elevation: 0,
           actions: [
-            IconButton(
-              icon: const Icon(Icons.more_horiz),
-              onPressed: () {},
-            ),
+            if (!viewmodel.selectionMode)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: PopupMenuButton(
+                  itemBuilder: (BuildContext context) {
+                    return [
+                      const PopupMenuItem(
+                        value: 'clear',
+                        child: Text('Clear chat'),
+                      ),
+                    ];
+                  },
+                  onSelected: (String value) {
+                    if (value == 'clear') {
+                      viewmodel.clearChat();
+                    }
+                  },
+                  child: const Icon(Icons.more_horiz),
+                ),
+              ),
+            if (viewmodel.selectionMode)
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: IconButton(
+                  icon: const Icon(Icons.delete),
+                  onPressed: () {
+                    viewmodel.deleteSelectedMessages();
+                  },
+                ),
+              ),
           ],
         ),
         body: Container(
@@ -104,12 +130,27 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                                 message: message,
                                 previousMessage: previousMessage,
                                 nextMessage: nextMessage,
+                                selected: viewmodel.selectedMessages
+                                    .contains(message.messageId),
                                 incoming: message.senderId !=
                                     context
                                         .read<AuthServiceProvider>()
                                         .authToken!
                                         .user!
                                         .id,
+                                onTap: (selected) {
+                                  if (viewmodel.selectionMode) {
+                                    viewmodel.toggleMessageSelection(
+                                        messageId: message.messageId);
+                                  }
+                                },
+                                onLongPress: (selected) {
+                                  if (!viewmodel.selectionMode) {
+                                    viewmodel.selectionMode = true;
+                                    viewmodel.toggleMessageSelection(
+                                        messageId: message.messageId);
+                                  }
+                                },
                               ),
                             );
                           },
@@ -130,43 +171,48 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                       ],
                     ),
                   ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10),
-                    height: 60,
-                    color: AppColors.primaryColor,
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: TextField(
-                            controller: messageController,
-                            style: const TextStyle(
-                              color: Colors.white,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'Type a message',
-                              hintStyle: TextStyle(
-                                color: Colors.grey[600],
-                              ),
-                              border: InputBorder.none,
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    child: viewmodel.selectionMode
+                        ? const SizedBox.shrink()
+                        : Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 10),
+                            height: 60,
+                            color: AppColors.primaryColor,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: TextField(
+                                    controller: messageController,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                    decoration: InputDecoration(
+                                      hintText: 'Type a message',
+                                      hintStyle: TextStyle(
+                                        color: Colors.grey[600],
+                                      ),
+                                      border: InputBorder.none,
+                                    ),
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.send,
+                                    color: Colors.white,
+                                  ),
+                                  onPressed: () {
+                                    if (messageController.text.isNotEmpty) {
+                                      viewmodel.sendTextMessage(
+                                          text: messageController.text);
+                                      messageController.clear();
+                                      FocusScope.of(context).unfocus();
+                                    }
+                                  },
+                                ),
+                              ],
                             ),
                           ),
-                        ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.send,
-                            color: Colors.white,
-                          ),
-                          onPressed: () {
-                            if (messageController.text.isNotEmpty) {
-                              viewmodel.sendTextMessage(
-                                  text: messageController.text);
-                              messageController.clear();
-                              FocusScope.of(context).unfocus();
-                            }
-                          },
-                        ),
-                      ],
-                    ),
                   ),
                 ],
               ),

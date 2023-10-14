@@ -7,7 +7,7 @@ class Event {
     required this.id,
   });
 
-  factory Event.fromMap(Map<String, dynamic> map) {
+  factory Event.fromJson(Map<String, dynamic> map) {
     return Event(
       startTime: DateTime.parse(map['startTime']),
       endTime: DateTime.parse(map['endTime']),

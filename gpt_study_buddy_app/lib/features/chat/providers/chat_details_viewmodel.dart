@@ -20,6 +20,16 @@ class ChatDetailsViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
+  final List<String> _selectedMessages = [];
+  List<String> get selectedMessages => [..._selectedMessages];
+
+  bool _selectionMode = false;
+  bool get selectionMode => _selectionMode;
+  set selectionMode(bool selectionMode) {
+    _selectionMode = selectionMode;
+    notifyListeners();
+  }
+
   Bot? _bot;
   Bot? get bot => _bot;
   set bot(Bot? botId) {
@@ -38,7 +48,8 @@ class ChatDetailsViewModel extends ChangeNotifier {
 
     messageRepository.messageStream.listen((message) async {
       if (message.isForChat(
-          participant1: this.bot?.id ?? "", participant2: userId)) {
+              participant1: this.bot?.id ?? "", participant2: userId) ||
+          message.isEmpty) {
         this.messages = await messageRepository.getConversation(
           userId: userId,
           botId: bot.id,
@@ -55,5 +66,36 @@ class ChatDetailsViewModel extends ChangeNotifier {
       receiverId: bot!.id,
       text: text,
     );
+  }
+
+  void clearChat() {
+    messageRepository.clearConversation(
+      userId: authServiceProvider.authToken!.user!.id,
+      botId: bot!.id,
+    );
+  }
+
+  void toggleMessageSelection({
+    required String messageId,
+  }) {
+    if (_selectedMessages.contains(messageId)) {
+      _selectedMessages.remove(messageId);
+    } else {
+      _selectedMessages.add(messageId);
+    }
+    if (_selectedMessages.isEmpty) {
+      selectionMode = false;
+    }
+    notifyListeners();
+  }
+
+  Future<void> deleteSelectedMessages() async {
+    await messageRepository.deleteMessages(
+      userId: authServiceProvider.authToken!.user!.id,
+      botId: bot!.id,
+      messageIds: _selectedMessages,
+    );
+    _selectedMessages.clear();
+    selectionMode = false;
   }
 }

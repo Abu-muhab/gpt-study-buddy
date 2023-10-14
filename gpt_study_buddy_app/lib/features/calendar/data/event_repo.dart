@@ -17,7 +17,7 @@ class EventRepository {
         '${dotenv.env['SERVER_URL']}/events', event.toMap());
 
     if (response.isSuccess) {
-      return Event.fromMap(response.response);
+      return Event.fromJson(response.response);
     } else {
       throw DomainException(response.errorMessage);
     }
@@ -33,7 +33,7 @@ class EventRepository {
     if (response.isSuccess) {
       final List<Event> events = <Event>[];
       for (final Map<String, dynamic> botMap in response.response) {
-        events.add(Event.fromMap(botMap));
+        events.add(Event.fromJson(botMap));
       }
       return events;
     } else {

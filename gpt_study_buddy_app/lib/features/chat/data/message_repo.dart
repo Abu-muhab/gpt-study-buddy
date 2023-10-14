@@ -40,14 +40,19 @@ class MessageRepository {
       log('error: $data');
     });
 
-    socket.on('message', (data) {
-      try {
-        if (data == null) return;
-        final Map<String, dynamic> messageJson = data;
-        final message = Message.fromJson(messageJson);
-        saveMessage(message);
-      } catch (_) {}
-    });
+    socket.on(
+      'message',
+      (data) {
+        try {
+          if (data == null) return;
+          final Map<String, dynamic> messageJson = data;
+          final message = Message.fromJson(messageJson);
+          saveMessage(message);
+        } catch (err, stack) {
+          log('error: $err, stack: $stack');
+        }
+      },
+    );
   }
 
   Stream<Message> get messageStream => _messageStreamController.stream;
@@ -64,6 +69,7 @@ class MessageRepository {
       type: 'text',
       timestamp: DateTime.now(),
       messageId: _nextMessageId(),
+      createdResources: [],
     );
 
     await saveMessage(message);
@@ -113,6 +119,21 @@ class MessageRepository {
     return conversation;
   }
 
+  Future<bool> clearConversation({
+    required String userId,
+    required String botId,
+  }) async {
+    final List<Message> messages = await allMessages();
+    final List<Message> conversation = messages.where((message) {
+      return (message.senderId == userId && message.receiverId == botId) ||
+          (message.senderId == botId && message.receiverId == userId);
+    }).toList();
+    messages.removeWhere((message) => conversation.contains(message));
+    sharedPreferences.setString('messages', jsonEncode(messages));
+    _messageStreamController.add(Message.empty());
+    return true;
+  }
+
   Future<Message?> getLastMessage({
     required String userId,
     required String chatBotId,
@@ -132,5 +153,16 @@ class MessageRepository {
   String _nextMessageId() {
     var uuid = const Uuid();
     return uuid.v4() + uuid.v4();
+  }
+
+  Future<void> deleteMessages({
+    required String userId,
+    required String botId,
+    required List<String> messageIds,
+  }) async {
+    final List<Message> messages = await allMessages();
+    messages.removeWhere((message) => messageIds.contains(message.messageId));
+    sharedPreferences.setString('messages', jsonEncode(messages));
+    _messageStreamController.add(Message.empty());
   }
 }
