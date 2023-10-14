@@ -1,6 +1,7 @@
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:gpt_study_buddy/features/chat/data/message.dart';
 import 'package:intl/intl.dart';
 import 'dart:ui' as ui;
@@ -73,9 +74,60 @@ class MessageTile extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      message.message,
-                      style: messageTextStyle,
+                    MarkdownBody(
+                      data: message.message,
+                      styleSheetTheme: MarkdownStyleSheetBaseTheme.platform,
+                      styleSheet: MarkdownStyleSheet(
+                        p: messageTextStyle,
+                        h1: messageTextStyle.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        h2: messageTextStyle.copyWith(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        h3: messageTextStyle.copyWith(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        h4: messageTextStyle.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        h5: messageTextStyle.copyWith(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        h6: messageTextStyle.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w500,
+                        ),
+                        em: messageTextStyle.copyWith(
+                          fontStyle: FontStyle.italic,
+                        ),
+                        strong: messageTextStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        tableHead: messageTextStyle.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                        tableBody: messageTextStyle,
+                        tableCellsDecoration: const BoxDecoration(
+                          color: Colors.transparent,
+                          border: Border(
+                            top: BorderSide(
+                              color: Colors.grey,
+                              width: 0.5,
+                            ),
+                            bottom: BorderSide(
+                              color: Colors.grey,
+                              width: 0.5,
+                            ),
+                          ),
+                        ),
+                        listBullet: messageTextStyle,
+                      ),
                     ),
                     if (nextMessage?.senderId == null ||
                         nextMessage?.senderId != message.senderId)

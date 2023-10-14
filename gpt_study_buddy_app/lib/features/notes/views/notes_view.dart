@@ -8,11 +8,26 @@ import 'package:provider/provider.dart';
 
 import '../data/note.dart';
 
-class NotesView extends StatelessWidget {
+class NotesView extends StatefulWidget {
   const NotesView({super.key});
 
   @override
+  State<NotesView> createState() => _NotesViewState();
+}
+
+class _NotesViewState extends State<NotesView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<NotesProvider>().init();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<NotesProvider>(
       builder: (context, notesProvider, _) {
         return AppScaffold(
@@ -43,6 +58,9 @@ class NotesView extends StatelessWidget {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class NotesPreview extends StatelessWidget {

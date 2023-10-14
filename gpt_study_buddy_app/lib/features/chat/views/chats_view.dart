@@ -10,11 +10,26 @@ import 'package:provider/provider.dart';
 import '../../../common/colors.dart';
 import '../../../common/retry_widget.dart';
 
-class ChatsView extends StatelessWidget {
+class ChatsView extends StatefulWidget {
   const ChatsView({super.key});
 
   @override
+  State<ChatsView> createState() => _ChatsViewState();
+}
+
+class _ChatsViewState extends State<ChatsView>
+    with AutomaticKeepAliveClientMixin {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<ChatsProvider>().init();
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<ChatsProvider>(
       builder: (context, chatsProvider, _) {
         return AppScaffold(
@@ -89,6 +104,9 @@ class ChatsView extends StatelessWidget {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }
 
 class ChatTile extends StatefulWidget {

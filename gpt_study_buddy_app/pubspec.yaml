@@ -46,6 +46,7 @@ dependencies:
   go_router: ^9.0.0
   syncfusion_flutter_calendar: ^23.1.39
   syncfusion_flutter_core: ^23.1.39
+  flutter_markdown: ^0.6.18
 
 dev_dependencies:
   flutter_test:

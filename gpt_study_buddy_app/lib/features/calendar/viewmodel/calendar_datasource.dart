@@ -1,3 +1,4 @@
+import 'package:gpt_study_buddy/common/list_helpers.dart';
 import 'package:gpt_study_buddy/features/calendar/data/event.dart';
 import 'package:gpt_study_buddy/features/calendar/data/event_repo.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -39,6 +40,9 @@ class EventDataSource extends CalendarDataSource<Event> {
         endTime: endDate,
       );
       appointments!.addAll(events);
+      appointments = appointments!.toUniqueList(
+        equals: (a, b) => a.id == b.id,
+      );
       notifyListeners(CalendarDataSourceAction.add, events);
     } catch (_) {
       notifyListeners(CalendarDataSourceAction.add, []);

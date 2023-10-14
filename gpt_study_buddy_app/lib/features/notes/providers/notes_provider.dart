@@ -9,9 +9,7 @@ class NotesProvider extends ChangeNotifier {
   NotesProvider({
     required this.notesService,
     required this.authServiceProvider,
-  }) {
-    init();
-  }
+  });
 
   final NotesService notesService;
   final AuthServiceProvider authServiceProvider;

@@ -7,13 +7,20 @@ import 'package:provider/provider.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:syncfusion_flutter_core/theme.dart';
 
-class CalendarTabView extends StatelessWidget {
-  CalendarTabView({super.key});
+class CalendarTabView extends StatefulWidget {
+  const CalendarTabView({super.key});
 
+  @override
+  State<CalendarTabView> createState() => _CalendarTabViewState();
+}
+
+class _CalendarTabViewState extends State<CalendarTabView>
+    with AutomaticKeepAliveClientMixin {
   final CalendarController _calendarController = CalendarController();
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
     return Consumer<CalendarViewmodel>(
       builder: (context, calendarViewmodel, _) {
         return AppScaffold(
@@ -110,4 +117,7 @@ class CalendarTabView extends StatelessWidget {
       },
     );
   }
+
+  @override
+  bool get wantKeepAlive => true;
 }

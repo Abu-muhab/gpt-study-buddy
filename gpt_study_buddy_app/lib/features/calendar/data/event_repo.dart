@@ -28,7 +28,7 @@ class EventRepository {
     required DateTime endTime,
   }) async {
     final FailureOrResponse response = await httpClient.get(
-        '${dotenv.env['SERVER_URL']}/events?startTime=$startTime&endTime=$endTime');
+        '${dotenv.env['SERVER_URL']}/events?startTime=${startTime.toIso8601String()}&endTime=${endTime.toIso8601String()}');
 
     if (response.isSuccess) {
       final List<Event> events = <Event>[];

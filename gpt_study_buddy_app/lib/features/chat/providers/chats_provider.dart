@@ -13,9 +13,7 @@ class ChatsProvider extends ChangeNotifier {
     required this.botService,
     required this.messageRepository,
     required this.authServiceProvider,
-  }) {
-    init();
-  }
+  });
 
   final BotService botService;
   final MessageRepository messageRepository;
