@@ -5,6 +5,8 @@ import { UsersRepository } from '../users/user.repository.js';
 import { Bot } from '../bots/bot.model.js';
 import { BotsRepository } from '../bots/bots.repository.js';
 import { NotesRepository } from '../notes/notes.repository.js';
+import { EventsService } from '../events/events.service.js';
+import { EventsRepository } from '../events/events.repository.js';
 
 interface CallableFunction {
   name: string;
@@ -18,6 +20,8 @@ export class GptService {
     private readonly userRepository: UsersRepository,
     private readonly botsRepository: BotsRepository,
     private readonly notesRepository: NotesRepository,
+    private readonly eventsService: EventsService,
+    private readonly eventsRepository: EventsRepository,
   ) {}
 
   private async getChatCompletion(
@@ -32,7 +36,7 @@ export class GptService {
       const response = await axios.post(
         'https://api.openai.com/v1/chat/completions',
         {
-          model: 'gpt-3.5-turbo',
+          model: 'gpt-4',
           messages: messages,
           n: 1,
           temperature: 1,
@@ -63,6 +67,7 @@ export class GptService {
           return null;
         }
 
+        console.log(`calling function ${callableFunction.name}`);
         const functionResponse = await this.callCallableFunction(
           callableFunction,
           args,
@@ -165,6 +170,70 @@ export class GptService {
           },
         },
       },
+      {
+        name: 'get_current_date_time',
+        description:
+          'Returns the current date and time in the ISO string format.',
+        parameters: {
+          type: 'object',
+          required: [],
+          properties: {},
+        },
+      },
+      {
+        name: 'create_event',
+        description:
+          'Creates an event for the user with the given user id and adds it to the users schedule/calendar.',
+        parameters: {
+          type: 'object',
+          required: ['userId', 'name', 'startDate', 'endDate', 'isAllDay'],
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The user id of the user to create the event for.',
+            },
+            name: {
+              type: 'string',
+              description: 'The name of the event.',
+            },
+            startDate: {
+              type: 'string',
+              description: 'The start date of the event in ISO string format.',
+            },
+            endDate: {
+              type: 'string',
+              description: 'The end date of the event in ISO string format.',
+            },
+            isAllDay: {
+              type: 'boolean',
+              description: 'Whether or not the event is all day.',
+            },
+          },
+        },
+      },
+      {
+        name: 'get_events',
+        description:
+          'Returns the events for the user for the given time period.',
+        parameters: {
+          type: 'object',
+          required: ['userId', 'startDate', 'endDate'],
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The user id of the user to get events from.',
+            },
+            startDate: {
+              type: 'string',
+              description: 'The start date of the event in ISO string format.',
+            },
+            endDate: {
+              type: 'string',
+              description: 'The end date of the event in ISO string format.',
+            },
+          },
+        },
+      },
     ];
 
     return callableFunctions;
@@ -184,6 +253,25 @@ export class GptService {
       case 'get_user_notes':
         const notes = await this.notesRepository.getUserNotes(args.userId);
         return JSON.stringify(notes);
+      case 'create_event':
+        const event = await this.eventsService.createEvent({
+          userId: args.userId,
+          name: args.name,
+          startDate: new Date(args.startDate),
+          endDate: new Date(args.endDate),
+          isAllDay: args.isAllDay,
+        });
+        return JSON.stringify(event);
+      case 'get_current_date_time':
+        const date = new Date();
+        return date.toISOString();
+      case 'get_events':
+        const events = await this.eventsRepository.getUserEventBetweenDates({
+          userId: args.userId,
+          startDate: new Date(args.startDate),
+          endDate: new Date(args.endDate),
+        });
+        return JSON.stringify(events);
       default:
         return '';
     }

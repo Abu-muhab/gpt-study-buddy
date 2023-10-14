@@ -13,6 +13,8 @@ import { UsersController } from './users/users.controller';
 import { BotsController } from './bots/bots.controller';
 import { NotesModule } from './notes/notes.module';
 import { NotesController } from './notes/notes.controller';
+import { EventsModule } from './events/events.module';
+import { EventsController } from './events/events.controller';
 
 @Module({
   imports: [
@@ -21,6 +23,7 @@ import { NotesController } from './notes/notes.controller';
     MessagesModule,
     BotsModule,
     NotesModule,
+    EventsModule,
   ],
   controllers: [],
   providers: [],
@@ -33,6 +36,11 @@ export class AppModule implements NestModule {
         { path: 'users', method: RequestMethod.POST },
         { path: 'users/login', method: RequestMethod.POST },
       )
-      .forRoutes(UsersController, BotsController, NotesController);
+      .forRoutes(
+        UsersController,
+        BotsController,
+        NotesController,
+        EventsController,
+      );
   }
 }
