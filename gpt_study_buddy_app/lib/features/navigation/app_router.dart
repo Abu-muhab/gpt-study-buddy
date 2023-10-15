@@ -49,7 +49,11 @@ final GoRouter appRouter = GoRouter(
           GoRoute(
             path: AppViews.resolveSubRoute(AppViews.createNotes, AppViews.home),
             builder: (BuildContext context, GoRouterState state) {
-              return CreateNotesView();
+              final CreateNotesViewRouteArgs? args =
+                  state.extra as CreateNotesViewRouteArgs?;
+              return CreateNotesView(
+                args: args,
+              );
             },
           ),
           GoRoute(

@@ -79,4 +79,54 @@ class NotesProvider extends ChangeNotifier {
       isLoading = false;
     }
   }
+
+  Future<void> updateNote({
+    required String content,
+    required String title,
+    required String id,
+  }) async {
+    try {
+      if (isLoading) {
+        return;
+      }
+
+      isLoading = true;
+      final Note updatedNote = await notesService.updateNote(
+        content: content,
+        title: title,
+        id: id,
+      );
+      notes = [
+        for (final note in notes)
+          if (note.id == id) updatedNote else note,
+      ];
+    } catch (err, stack) {
+      log('updateNote error: $err, stack: $stack');
+      rethrow;
+    } finally {
+      isLoading = false;
+    }
+  }
+
+  Future<void> deleteNote({required String id}) async {
+    try {
+      if (isLoading) {
+        return;
+      }
+
+      isLoading = true;
+      await notesService.deleteNote(
+        id: id,
+      );
+      notes = [
+        for (final note in notes)
+          if (note.id != id) note,
+      ];
+    } catch (err, stack) {
+      log('deleteNote error: $err, stack: $stack');
+      rethrow;
+    } finally {
+      isLoading = false;
+    }
+  }
 }

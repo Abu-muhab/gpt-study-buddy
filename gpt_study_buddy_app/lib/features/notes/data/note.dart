@@ -2,39 +2,42 @@ import 'dart:developer';
 
 class Note {
   Note({
-    required this.lastUpdated,
+    required this.updatedAt,
     this.title,
     this.content,
+    this.id,
   });
 
-  final DateTime lastUpdated;
+  final DateTime updatedAt;
   final String? title;
   final String? content;
+  final String? id;
 
   factory Note.fromMap(Map<String, dynamic> map) {
     log(map.toString());
     return Note(
-      lastUpdated: DateTime.parse(map['lastUpdated']),
+      updatedAt: DateTime.parse(map['updatedAt']),
       title: map['title'],
       content: map['content'],
+      id: map['id'],
     );
   }
 
   Map<String, dynamic> toMap() {
     return {
-      'date': lastUpdated.toIso8601String(),
+      'updatedAt': updatedAt.toIso8601String(),
       'title': title,
       'content': content,
     };
   }
 
   Note copyWith({
-    DateTime? lastUpdated,
+    DateTime? updatedAt,
     String? title,
     String? content,
   }) {
     return Note(
-      lastUpdated: lastUpdated ?? this.lastUpdated,
+      updatedAt: updatedAt ?? this.updatedAt,
       title: title ?? this.title,
       content: content ?? this.content,
     );

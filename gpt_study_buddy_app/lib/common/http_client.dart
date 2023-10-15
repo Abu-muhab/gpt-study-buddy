@@ -38,8 +38,68 @@ class AppHttpClient {
     }
   }
 
+  Future<FailureOrResponse> delete(String url) async {
+    final http.Response response = await http.delete(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        ...await getAuthHeader(),
+      },
+    );
+
+    if (response.statusCode.toString().startsWith('2')) {
+      dynamic res;
+      try {
+        res = jsonDecode(response.body);
+      } catch (_) {}
+
+      return FailureOrResponse(
+        isSuccess: true,
+        response: res ?? {},
+      );
+    } else {
+      if (response.statusCode == 401) {
+        await authTokenRepo.deleteAuthToken();
+      }
+
+      return FailureOrResponse(
+        response: null,
+        isSuccess: false,
+        errorMessage: parseErrorResponse(response.body),
+      );
+    }
+  }
+
   Future<FailureOrResponse> post(String url, Map<String, dynamic> body) async {
     final http.Response response = await http.post(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+        ...await getAuthHeader(),
+      },
+      body: const JsonEncoder().convert(body),
+    );
+
+    if (response.statusCode.toString().startsWith('2')) {
+      return FailureOrResponse(
+        isSuccess: true,
+        response: jsonDecode(response.body),
+      );
+    } else {
+      if (response.statusCode == 401) {
+        await authTokenRepo.deleteAuthToken();
+      }
+
+      return FailureOrResponse(
+        response: null,
+        isSuccess: false,
+        errorMessage: parseErrorResponse(response.body),
+      );
+    }
+  }
+
+  Future<FailureOrResponse> patch(String url, Map<String, dynamic> body) async {
+    final http.Response response = await http.patch(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json',

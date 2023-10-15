@@ -53,23 +53,29 @@ class _ChatsViewState extends State<ChatsView>
                       return SizedBox(
                         height: double.infinity,
                         width: double.infinity,
-                        child: Column(
-                          mainAxisSize: MainAxisSize.max,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Image.asset(
-                              'assets/robot1.png',
-                            ),
-                            Text(
-                              'Create a new bot \nto get started',
-                              style: TextStyle(
-                                color: Colors.grey[800],
-                                fontSize: 15,
-                                fontWeight: FontWeight.w300,
+                        child: GestureDetector(
+                          onTap: () {
+                            context.go(AppViews.createBot);
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: Column(
+                            mainAxisSize: MainAxisSize.max,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Image.asset(
+                                'assets/robot1.png',
                               ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ],
+                              const Text(
+                                'Create a new bot \nto get started',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                  fontWeight: FontWeight.w300,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }

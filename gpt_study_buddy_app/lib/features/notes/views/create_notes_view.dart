@@ -5,49 +5,90 @@ import 'package:gpt_study_buddy/common/app_scaffold.dart';
 import 'package:gpt_study_buddy/common/colors.dart';
 import 'package:gpt_study_buddy/common/dialogs.dart';
 import 'package:gpt_study_buddy/common/exception.dart';
+import 'package:gpt_study_buddy/features/notes/data/note.dart';
 import 'package:gpt_study_buddy/features/notes/providers/notes_provider.dart';
 import 'package:provider/provider.dart';
 
-class CreateNotesView extends StatelessWidget {
-  CreateNotesView({super.key});
+class CreateNotesViewRouteArgs {
+  const CreateNotesViewRouteArgs({
+    required this.note,
+  });
 
+  final Note? note;
+}
+
+class CreateNotesView extends StatefulWidget {
+  const CreateNotesView({
+    super.key,
+    this.args,
+  });
+
+  final CreateNotesViewRouteArgs? args;
+
+  @override
+  State<CreateNotesView> createState() => _CreateNotesViewState();
+}
+
+class _CreateNotesViewState extends State<CreateNotesView> {
   final TextEditingController titleController = TextEditingController();
+
   final TextEditingController contentController = TextEditingController();
 
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   @override
+  void initState() {
+    if (widget.args?.note != null) {
+      titleController.text = widget.args?.note!.title ?? '';
+      contentController.text = widget.args?.note!.content ?? '';
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final bool isEditing = widget.args?.note != null;
     return Consumer<NotesProvider>(
       builder: (context, notesProvider, _) {
         return AppScaffold(
           isLoading: notesProvider.isLoading,
           appBar: AppBar(
-            title: const Text('Add Note'),
+            title: Text(isEditing ? 'Edit Note' : 'Add Note'),
             actions: [
               TextButton(
                   onPressed: () async {
                     if (contentController.text.isNotEmpty) {
                       try {
-                        await notesProvider.addNote(
-                          title: titleController.text,
-                          content: contentController.text,
-                        );
-                        Navigator.pop(context);
+                        if (!isEditing) {
+                          await notesProvider.addNote(
+                            title: titleController.text,
+                            content: contentController.text,
+                          );
+                          Navigator.pop(context);
+                        } else {
+                          await notesProvider.updateNote(
+                            title: titleController.text,
+                            content: contentController.text,
+                            id: widget.args?.note?.id ?? "",
+                          );
+                          showToast(
+                            context,
+                            'Note updated.',
+                          );
+                        }
                       } on DomainException catch (e) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(e.message),
-                          ),
+                        showToast(
+                          context,
+                          e.message,
                         );
                       } catch (_) {
                         showUnexpectedErrorToast(context);
                       }
                     }
                   },
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(
+                  child: Text(
+                    isEditing ? 'Update' : 'Save',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 18,
                     ),

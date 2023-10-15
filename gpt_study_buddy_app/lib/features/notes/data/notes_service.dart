@@ -20,7 +20,6 @@ class NotesService {
         await httpClient.post('${dotenv.env['SERVER_URL']}/notes', {
       'content': content,
       'title': title,
-      'date': DateTime.now().toIso8601String(),
     });
 
     if (response.isSuccess) {
@@ -42,6 +41,34 @@ class NotesService {
       return notes;
     } else {
       log(response.errorMessage.toString());
+      throw DomainException(response.errorMessage);
+    }
+  }
+
+  Future<Note> updateNote(
+      {required String content,
+      required String title,
+      required String id}) async {
+    final FailureOrResponse response =
+        await httpClient.patch('${dotenv.env['SERVER_URL']}/notes/$id', {
+      'content': content,
+      'title': title,
+    });
+
+    if (response.isSuccess) {
+      return Note.fromMap(response.response);
+    } else {
+      throw DomainException(response.errorMessage);
+    }
+  }
+
+  Future<void> deleteNote({
+    required String id,
+  }) async {
+    final FailureOrResponse response =
+        await httpClient.delete('${dotenv.env['SERVER_URL']}/notes/$id');
+
+    if (!response.isSuccess) {
       throw DomainException(response.errorMessage);
     }
   }

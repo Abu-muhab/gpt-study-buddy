@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:diffutil_sliverlist/diffutil_sliverlist.dart';
 import 'package:flutter/material.dart';
@@ -45,6 +46,7 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   }
 
   void init() {
+    log("init");
     final ChatDetailsViewModel chatDetailsViewModel =
         context.read<ChatDetailsViewModel>();
 
@@ -107,6 +109,7 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                     child: CustomScrollView(
                       reverse: true,
                       controller: scrollController,
+                      restorationId: 'chat_detail_scroll_view',
                       slivers: [
                         DiffUtilSliverList<Message>(
                           equalityChecker: (Message item1, Message item2) =>
