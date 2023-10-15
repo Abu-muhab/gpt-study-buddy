@@ -183,6 +183,7 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                             height: 60,
                             color: AppColors.primaryColor,
                             child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Expanded(
                                   child: TextField(
@@ -197,6 +198,9 @@ class _ChatDetailViewState extends State<ChatDetailView> {
                                       ),
                                       border: InputBorder.none,
                                     ),
+                                    maxLines: null,
+                                    minLines: null,
+                                    expands: true,
                                   ),
                                 ),
                                 IconButton(

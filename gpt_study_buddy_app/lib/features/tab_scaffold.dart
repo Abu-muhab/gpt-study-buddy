@@ -1,4 +1,6 @@
 import "package:flutter/material.dart";
+import "package:gpt_study_buddy/features/auth/providers/auth_service_provider.dart";
+import "package:provider/provider.dart";
 
 import "../common/colors.dart";
 
@@ -60,6 +62,32 @@ class _HomeViewTabScaffoldState extends State<HomeViewTabScaffold>
               },
             );
           },
+        ),
+      ),
+      drawer: Drawer(
+        backgroundColor: AppColors.primaryColor,
+        child: SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              const Expanded(child: SizedBox()),
+              ListTile(
+                leading: const Icon(
+                  Icons.logout,
+                  color: Colors.white,
+                ),
+                title: const Text(
+                  "Logout",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+                onTap: () {
+                  context.read<AuthServiceProvider>().logout();
+                },
+              ),
+            ],
+          ),
         ),
       ),
       floatingActionButton: SizedBox(

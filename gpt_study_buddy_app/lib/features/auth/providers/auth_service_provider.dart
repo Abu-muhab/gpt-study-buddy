@@ -44,6 +44,18 @@ class AuthServiceProvider extends ChangeNotifier {
     }
   }
 
+  Future<void> logout() async {
+    try {
+      isLoading = true;
+      await autTokenRep.deleteAuthToken();
+      setLoggedInState(null);
+      isLoading = false;
+    } catch (e) {
+      isLoading = false;
+      rethrow;
+    }
+  }
+
   Future<void> signup(SignupRequest request) async {
     try {
       isLoading = true;
@@ -64,8 +76,6 @@ class AuthServiceProvider extends ChangeNotifier {
 
   void setLoggedInState(AuthToken? authToken) {
     this.authToken = authToken;
-    if (authToken != null) {
-      isLoggedInNotifier.value = true;
-    }
+    isLoggedInNotifier.value = authToken != null;
   }
 }

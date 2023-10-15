@@ -111,7 +111,7 @@ class _CreateBotViewState extends State<CreateBotView> {
                       ),
                     ),
                     child: Text(
-                      viewmodel.isLastStep ? "Create Assistant" : "Next Step",
+                      viewmodel.isLastStep ? "Create Assistant" : "Next",
                     ),
                   ),
                 ),

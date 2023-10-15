@@ -54,6 +54,9 @@ class MyApp extends StatelessWidget {
       title: 'ChatBuddy',
       theme: ThemeData(
         primarySwatch: AppColors.primaryColor,
+        textSelectionTheme: const TextSelectionThemeData(
+          cursorColor: Colors.white,
+        ),
       ),
       routerConfig: appRouter,
     );
