@@ -10,8 +10,6 @@ services:
       - 80:3000
     env_file:
       - .env
-    volumes:
-      - .:/app
 
   mongo:
     container_name: mongo
@@ -22,8 +20,6 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password
-    volumes:
-      - mongo-db:/data/db
 
   mongo-client:
     container_name: mongo-client
