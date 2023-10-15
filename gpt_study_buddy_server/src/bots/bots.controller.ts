@@ -38,4 +38,10 @@ export class BotsController {
     const bots = await this.botsRepository.getUserBots(user.id);
     return bots.map((bot) => BotDto.fromDomain(bot));
   }
+
+  @Get('questions')
+  @ApiOperation({ summary: 'Get bot creation options' })
+  async botCreationQuestions() {
+    return this.botsService.botCreationQuestions();
+  }
 }
