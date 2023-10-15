@@ -5,21 +5,21 @@ export class Note extends Entity {
   private _id: string;
   private _title: string;
   private _content: string;
-  private _lastUpdated: string;
+  private _updatedAt: string;
   private _userId: string;
 
   constructor(params: {
     id: string;
     title: string;
     content: string;
-    lastUpdated: string;
+    updatedAt: string;
     userId: string;
   }) {
     super();
     this.id = params.id;
     this.title = params.title;
     this.content = params.content;
-    this.lastUpdated = params.lastUpdated;
+    this.updatedAt = params.updatedAt;
     this.userId = params.userId;
   }
 
@@ -39,7 +39,7 @@ export class Note extends Entity {
     return this._title;
   }
 
-  private set title(value: string) {
+  public set title(value: string) {
     this._title = value;
   }
 
@@ -47,24 +47,24 @@ export class Note extends Entity {
     return this._content;
   }
 
-  private set content(value: string) {
+  public set content(value: string) {
     if (!value || value.length < 1) {
       throw new DomainError.RequiredPropertyError('content');
     }
     this._content = value;
   }
 
-  public get lastUpdated(): string {
-    return this._lastUpdated;
+  public get updatedAt(): string {
+    return this._updatedAt;
   }
 
-  private set lastUpdated(value: string) {
+  public set updatedAt(value: string) {
     if (!value) {
-      this._lastUpdated = new Date().toISOString();
+      this._updatedAt = new Date().toISOString();
       return;
     }
 
-    this._lastUpdated = value;
+    this._updatedAt = value;
   }
 
   public get userId(): string {

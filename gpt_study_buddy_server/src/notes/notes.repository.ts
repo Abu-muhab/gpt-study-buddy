@@ -13,7 +13,7 @@ export interface NoteDocument {
   id: string;
   title: string;
   content: string;
-  lastUpdated: string;
+  updatedAt: string;
   userId: string;
 }
 
@@ -21,7 +21,7 @@ const noteSchema = new Schema<NoteDocument>({
   id: { type: String, required: true },
   title: { type: String, required: false },
   content: { type: String, required: true },
-  lastUpdated: { type: String, required: true },
+  updatedAt: { type: String, required: true },
   userId: { type: String, required: true },
 });
 
@@ -35,7 +35,7 @@ export class NotesMapper extends Mapper<Note, NoteDocument> {
       id: entity.id,
       title: entity.title,
       content: entity.content,
-      lastUpdated: entity.lastUpdated,
+      updatedAt: entity.updatedAt,
       userId: entity.userId,
     };
   }
@@ -45,7 +45,7 @@ export class NotesMapper extends Mapper<Note, NoteDocument> {
       id: document.id,
       title: document.title,
       content: document.content,
-      lastUpdated: document.lastUpdated,
+      updatedAt: document.updatedAt,
       userId: document.userId,
     });
   }

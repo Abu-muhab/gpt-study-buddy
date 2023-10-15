@@ -12,14 +12,14 @@ export class NoteDto {
   content: string;
 
   @ApiProperty()
-  lastUpdated: string;
+  updatedAt: string;
 
   static fromDomain(domain: Note): NoteDto {
     return {
       id: domain.id,
       title: domain.title,
       content: domain.content,
-      lastUpdated: domain.lastUpdated,
+      updatedAt: domain.updatedAt,
     };
   }
 }
