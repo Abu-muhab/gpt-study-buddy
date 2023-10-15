@@ -1,43 +1,21 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot_service.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot.dart';
+import 'package:gpt_study_buddy/features/bot/data/question.dart';
 import 'package:gpt_study_buddy/features/chat/providers/chats_provider.dart';
-
-enum CreateAssistantStep { name, usefulness, trait, language, interests }
-
-List<Map<String, dynamic>> traits = [
-  {
-    "text": "Professional",
-    "subText":
-        "The AI assistant speaks in a formal and respectful tone, using appropriate titles and language in business and work-related contexts.",
-  },
-  {
-    "text": "Witty",
-    "subText":
-        "The AI assistant has a quick and clever sense of humor, using puns, jokes, and pop culture references to entertain and engage the user",
-  },
-  {
-    "text": "Informative",
-    "subText":
-        "The AI assistant has a serious and informative personality, providing detailed and accurate information on a variety of topics",
-  },
-  {
-    "text": "Supportive",
-    "subText":
-        "The AI assistant has a nurturing and empathetic personality, providing encouragement and emotional support to the user.",
-  },
-];
 
 class CreateBotViewmodel extends ChangeNotifier {
   CreateBotViewmodel({
     required this.botService,
     required this.chatsProvider,
-  });
+  }) {
+    fetchQuestions();
+  }
+
   final BotService botService;
   final ChatsProvider chatsProvider;
-
-  int _stepIndex = 0;
-  CreateAssistantStep get step => CreateAssistantStep.values[_stepIndex];
 
   bool _loading = false;
   bool get loading => _loading;
@@ -46,6 +24,56 @@ class CreateBotViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
+  List<Question>? _questions;
+  List<Question>? get questions => _questions;
+
+  int _currentQuestionId = 0;
+  int get currentQuestionId => _currentQuestionId;
+
+  final Map<int, List<QuestionOption>> _questionsSelectedOptions = {};
+  Map<int, List<QuestionOption>> get questionsSelectedOptions =>
+      {..._questionsSelectedOptions};
+
+  Question getCreationStepQuestion(int currentQuestionId) {
+    return questions!.firstWhere((element) => element.id == currentQuestionId);
+  }
+
+  List<QuestionOption> getQuestionSelectedOptions(int questionId) {
+    return _questionsSelectedOptions[questionId] ?? [];
+  }
+
+  void setRadioSelectedOption(Question question, QuestionOption option) {
+    _questionsSelectedOptions[question.id] = [option];
+    notifyListeners();
+  }
+
+  void setCheckboxSelectedOption(Question question, QuestionOption option) {
+    final List<QuestionOption> selectedOptions =
+        _questionsSelectedOptions[question.id] ?? [];
+    if (selectedOptions.contains(option)) {
+      selectedOptions.remove(option);
+    } else {
+      selectedOptions.add(option);
+    }
+    _questionsSelectedOptions[question.id] = selectedOptions;
+    notifyListeners();
+  }
+
+  bool allQuestionsAnswered() {
+    return _questionsSelectedOptions.keys.every(
+            (element) => _questionsSelectedOptions[element]!.isNotEmpty) &&
+        _questionsSelectedOptions.keys.length == _questions!.length &&
+        name != null;
+  }
+
+  bool questionAnswered(int questionId) {
+    return _questionsSelectedOptions[questionId] != null &&
+        _questionsSelectedOptions[questionId]!.isNotEmpty;
+  }
+
+  bool _errorFetchingQuestions = false;
+  bool get errorFetchingQuestions => _errorFetchingQuestions;
+
   String? _name;
   String? get name => _name;
   set name(String? name) {
@@ -53,43 +81,27 @@ class CreateBotViewmodel extends ChangeNotifier {
     notifyListeners();
   }
 
-  String? _helfulness;
-  String? get helfulness => _helfulness;
-  set helfulness(String? helfulness) {
-    _helfulness = helfulness;
-    notifyListeners();
-  }
-
-  String? _trait;
-  String? get trait => _trait;
-  set trait(String? trait) {
-    _trait = trait;
-    notifyListeners();
-  }
-
-  String? _language;
-  String? get language => _language;
-  set language(String? language) {
-    _language = language;
-    notifyListeners();
-  }
-
-  List<String> _interests = <String>[];
-  List<String> get interests => _interests;
-  set interests(List<String> interests) {
-    _interests = interests;
-    notifyListeners();
+  Future<void> fetchQuestions() async {
+    try {
+      loading = true;
+      _questions = await botService.getBotCreationQuestions();
+    } catch (err, stack) {
+      log(err.toString(), stackTrace: stack);
+      _errorFetchingQuestions = true;
+    } finally {
+      loading = false;
+    }
   }
 
   double get completionPercentage {
-    return (_stepIndex + 1) / CreateAssistantStep.values.length;
+    return questions == null ? 0 : (currentQuestionId + 1) / questions!.length;
   }
 
-  bool get isLastStep => _stepIndex == CreateAssistantStep.values.length - 1;
+  bool get isLastStep => _currentQuestionId == questions!.length - 1;
 
   bool nextStep() {
-    if (_stepIndex < CreateAssistantStep.values.length - 1) {
-      _stepIndex++;
+    if (_currentQuestionId < questions!.length - 1) {
+      _currentQuestionId = _currentQuestionId + 1;
       notifyListeners();
       return true;
     }
@@ -98,8 +110,8 @@ class CreateBotViewmodel extends ChangeNotifier {
   }
 
   bool previousStep() {
-    if (_stepIndex > 0) {
-      _stepIndex--;
+    if (_currentQuestionId > 0) {
+      _currentQuestionId = _currentQuestionId - 1;
       notifyListeners();
       return true;
     }
@@ -108,30 +120,11 @@ class CreateBotViewmodel extends ChangeNotifier {
   }
 
   bool get canGoToNextStep {
-    switch (step) {
-      case CreateAssistantStep.name:
-        return _name != null && _name!.isNotEmpty;
-      case CreateAssistantStep.usefulness:
-        return _helfulness != null && _helfulness!.isNotEmpty;
-      case CreateAssistantStep.trait:
-        return _trait != null && _trait!.isNotEmpty;
-      case CreateAssistantStep.language:
-        return _language != null && _language!.isNotEmpty;
-      case CreateAssistantStep.interests:
-        return _interests.isNotEmpty;
-      default:
-        return false;
+    if (_currentQuestionId == 0) {
+      return name != null;
+    } else {
+      return questionAnswered(_currentQuestionId);
     }
-  }
-
-  void addInterest(String interest) {
-    _interests.add(interest);
-    notifyListeners();
-  }
-
-  void removeInterest(String interest) {
-    _interests.remove(interest);
-    notifyListeners();
   }
 
   Future<void> createBot() async {
@@ -148,17 +141,33 @@ class CreateBotViewmodel extends ChangeNotifier {
   }
 
   String getBotSummary() {
-    return "$name is an AI assistant that is $helfulness and speaks $language. ${traits.firstWhere((element) => element["text"] == trait)["subText"]}}."
-        "$name is interested in ${interests.join(", ")}";
+    return """
+$name is an AI assistant. The following describes the behavior of $name:
+${questions!.map((e) => getQuestionSelectedOptionsSummary(e)).join("\n")}
+    """
+        .trim();
+  }
+
+  String getQuestionSelectedOptionsSummary(Question question) {
+    if (question.id == 0) {
+      return "";
+    }
+
+    final List<QuestionOption> selectedOptions =
+        getQuestionSelectedOptions(question.id);
+    if (selectedOptions.isEmpty) {
+      return "";
+    } else {
+      return """
+${question.attribute}: ${selectedOptions.map((QuestionOption e) => "${e.label} (${e.systemDescription})").join(", ")}
+ """;
+    }
   }
 
   void reset({bool notifyAllListeners = true}) {
-    _stepIndex = 0;
+    _currentQuestionId = 0;
     _name = null;
-    _helfulness = null;
-    _trait = null;
-    _language = null;
-    _interests = <String>[];
+    _questionsSelectedOptions.clear();
     if (notifyAllListeners) {
       notifyListeners();
     }

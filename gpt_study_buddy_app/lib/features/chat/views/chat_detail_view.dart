@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:diffutil_sliverlist/diffutil_sliverlist.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +45,6 @@ class _ChatDetailViewState extends State<ChatDetailView> {
   }
 
   void init() {
-    log("init");
     final ChatDetailsViewModel chatDetailsViewModel =
         context.read<ChatDetailsViewModel>();
 

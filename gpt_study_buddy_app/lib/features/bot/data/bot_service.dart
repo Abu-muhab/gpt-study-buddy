@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:gpt_study_buddy/common/exception.dart';
 import 'package:gpt_study_buddy/common/http_client.dart';
 import 'package:gpt_study_buddy/features/bot/data/bot.dart';
+import 'package:gpt_study_buddy/features/bot/data/question.dart';
 
 class BotService {
   BotService({
@@ -39,6 +40,22 @@ class BotService {
         bots.add(Bot.fromMap(botMap));
       }
       return bots;
+    } else {
+      log(response.errorMessage.toString());
+      throw DomainException(response.errorMessage);
+    }
+  }
+
+  Future<List<Question>> getBotCreationQuestions() async {
+    final FailureOrResponse response =
+        await httpClient.get('${dotenv.env['SERVER_URL']}/bots/questions');
+
+    if (response.isSuccess) {
+      final List<Question> questions = <Question>[];
+      for (final Map<String, dynamic> questionMap in response.response) {
+        questions.add(Question.fromMap(questionMap));
+      }
+      return questions;
     } else {
       log(response.errorMessage.toString());
       throw DomainException(response.errorMessage);

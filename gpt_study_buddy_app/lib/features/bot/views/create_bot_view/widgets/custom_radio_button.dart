@@ -71,17 +71,20 @@ class CustomCheckBox extends StatelessWidget {
     required this.value,
     required this.onChanged,
     required this.text,
+    this.subText,
   });
 
   final bool value;
   final void Function(bool?)? onChanged;
   final String text;
+  final String? subText;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(10),
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Checkbox(
             value: value,
@@ -89,11 +92,33 @@ class CustomCheckBox extends StatelessWidget {
             activeColor: Colors.blue,
             fillColor: MaterialStateProperty.all(Colors.white),
           ),
-          Text(
-            text,
-            style: const TextStyle(
-              fontSize: 20,
-              color: Colors.white,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 10,
+                ),
+                Text(
+                  text,
+                  style: const TextStyle(
+                    fontSize: 20,
+                    color: Colors.white,
+                  ),
+                ),
+                if (subText != null) ...[
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  Text(
+                    subText!,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Colors.grey,
+                    ),
+                  )
+                ],
+              ],
             ),
           ),
         ],
