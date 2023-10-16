@@ -1,4 +1,4 @@
-# Study Buddy - AI Assistant Creation App
+# GPT Study Buddy - AI Assistant Creation App
 
 Study Buddy is an AI assistant creation app that allows you to design and customize your personal assistant's personality to cater to your specific needs. While it's particularly useful as a study companion, it can serve a wide range of applications.
 
