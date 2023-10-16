@@ -33,6 +33,13 @@ Repository: [Study Buddy Server](https://github.com/Abu-muhab/gpt-study-buddy/tr
    ```
    OPENAI_API_KEY=your_api_key
    DB_URL="mongodb://admin:password@mongo:27017/?authMechanism=DEFAULT"
+   OPENAI_API_KEY=your_api_key
+   DB_URL="mongodb://<MONGO_INITDB_ROOT_USERNAME>:<MONGO_INITDB_ROOT_PASSWORD>@mongo:27017/?authMechanism=DEFAULT"
+   MONGO_INITDB_ROOT_USERNAME=username
+   MONGO_INITDB_ROOT_PASSWORD=password
+   ME_CONFIG_MONGODB_PORT=27017
+   ME_CONFIG_MONGODB_ADMINUSERNAME=<MONGO_INITDB_ROOT_USERNAME>
+   ME_CONFIG_MONGODB_ADMINPASSWORD=<MONGO_INITDB_ROOT_PASSWORD>
    ```
 
    Replace the placeholders with your actual values.
