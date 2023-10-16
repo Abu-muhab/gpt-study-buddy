@@ -2,9 +2,13 @@
 
 Study Buddy is an AI assistant creation app that allows you to design and customize your personal assistant's personality to cater to your specific needs. While it's particularly useful as a study companion, it can serve a wide range of applications.
 
-<div style="text-align:center">
-  <img src="https://firebasestorage.googleapis.com/v0/b/abumuhab.appspot.com/o/study_buddy%2Fapp%2FIMG_6221.PNG?alt=media&token=b359217c-2679-480a-a2be-31db3c91a229&_gl=1*18p8gu4*_ga*MjEwNTM4NjY0Ni4xNjc4OTUwMTYy*_ga_CW55HF8NVT*MTY5NzQ1NzEzMi4yMy4xLjE2OTc0NTg0MzYuNDQuMC4w" alt="Chats" width="50%" />
-</div>
+<table style="width:100%;">
+  <tr>
+    <td align="center"><img src="https://firebasestorage.googleapis.com/v0/b/abumuhab.appspot.com/o/study_buddy%2Fapp%2FIMG_6221.PNG?alt=media&token=b359217c-2679-480a-a2be-31db3c91a229&_gl=1*18p8gu4*_ga*MjEwNTM4NjY0Ni4xNjc4OTUwMTYy*_ga_CW55HF8NVT*MTY5NzQ1NzEzMi4yMy4xLjE2OTc0NTg0MzYuNDQuMC4w"></td>
+    <td align="center"><img src="https://firebasestorage.googleapis.com/v0/b/abumuhab.appspot.com/o/study_buddy%2Fcreation%2FIMG_6222.PNG?alt=media&token=6382a9b7-b3a6-47c7-b364-a414bd7dab78&_gl=1*19ob297*_ga*MjEwNTM4NjY0Ni4xNjc4OTUwMTYy*_ga_CW55HF8NVT*MTY5NzQ1NzEzMi4yMy4xLjE2OTc0NTkzODQuNjAuMC4w"></td>
+    <td align="center"><img src="https://firebasestorage.googleapis.com/v0/b/abumuhab.appspot.com/o/study_buddy%2Fcreation%2FIMG_6223.PNG?alt=media&token=c7a0c32d-b35a-4533-b7f9-9c734cb0dbcc&_gl=1*1qohfov*_ga*MjEwNTM4NjY0Ni4xNjc4OTUwMTYy*_ga_CW55HF8NVT*MTY5NzQ1NzEzMi4yMy4xLjE2OTc0NTk0MDAuNDQuMC4w"></td>
+  </tr>
+</table>
 
 ## Features
 
