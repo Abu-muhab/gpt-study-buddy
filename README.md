@@ -32,8 +32,6 @@ Repository: [Study Buddy Server](https://github.com/Abu-muhab/gpt-study-buddy/tr
 
    ```
    OPENAI_API_KEY=your_api_key
-   DB_URL="mongodb://admin:password@mongo:27017/?authMechanism=DEFAULT"
-   OPENAI_API_KEY=your_api_key
    DB_URL="mongodb://<MONGO_INITDB_ROOT_USERNAME>:<MONGO_INITDB_ROOT_PASSWORD>@mongo:27017/?authMechanism=DEFAULT"
    MONGO_INITDB_ROOT_USERNAME=username
    MONGO_INITDB_ROOT_PASSWORD=password
