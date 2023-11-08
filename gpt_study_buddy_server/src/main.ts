@@ -3,12 +3,14 @@ import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import mongoose from 'mongoose';
+import { TrimPipe } from './users/auth.middleware';
 
 declare const module: any;
 
 async function bootstrap() {
   await mongoose.connect(process.env.DB_URL, { dbName: 'chatbot' });
   const app = await NestFactory.create(AppModule);
+  app.useGlobalPipes(new TrimPipe());
   app.useGlobalPipes(new ValidationPipe());
 
   const config = new DocumentBuilder()

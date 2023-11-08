@@ -35,8 +35,7 @@ export class TrimPipe implements PipeTransform {
     if (this.isObj(values) && type === 'body') {
       return this.trim(values);
     }
-
-    throw new BadRequestException('Validation failed');
+    return values;
   }
 }
 

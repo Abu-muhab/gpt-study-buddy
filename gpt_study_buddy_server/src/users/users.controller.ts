@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseFilters, UsePipes } from '@nestjs/common';
+import { Body, Controller, Post, UseFilters } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
   AuthResponse,
@@ -22,7 +22,6 @@ export class UsersController {
   @Post()
   @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'Create a new user' })
-  @UsePipes(new TrimPipe())
   async createUser(@Body() body: CreateUserRequest): Promise<AuthResponse> {
     const userDto = UserDto.fromDomain(
       await this.usersService.createUser(body),
@@ -42,7 +41,6 @@ export class UsersController {
   @Post('login')
   @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'Login' })
-  @UsePipes(new TrimPipe())
   async login(@Body() body: LoginRequest): Promise<AuthResponse> {
     return {
       token: await this.usersService.login({
