@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseFilters } from '@nestjs/common';
+import { Body, Controller, Post, UseFilters, UsePipes } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
   AuthResponse,
@@ -9,6 +9,7 @@ import {
 import { ApiCreatedResponse, ApiOperation } from '@nestjs/swagger';
 import { HttpDomainExceptionFilter } from 'src/common/http_domain_exception_filter';
 import { UsersRepository } from './user.repository';
+import { TrimPipe } from './auth.middleware';
 
 @Controller('users')
 @UseFilters(HttpDomainExceptionFilter)
@@ -21,6 +22,7 @@ export class UsersController {
   @Post()
   @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'Create a new user' })
+  @UsePipes(new TrimPipe())
   async createUser(@Body() body: CreateUserRequest): Promise<AuthResponse> {
     const userDto = UserDto.fromDomain(
       await this.usersService.createUser(body),
@@ -40,6 +42,7 @@ export class UsersController {
   @Post('login')
   @ApiCreatedResponse({ type: AuthResponse })
   @ApiOperation({ summary: 'Login' })
+  @UsePipes(new TrimPipe())
   async login(@Body() body: LoginRequest): Promise<AuthResponse> {
     return {
       token: await this.usersService.login({

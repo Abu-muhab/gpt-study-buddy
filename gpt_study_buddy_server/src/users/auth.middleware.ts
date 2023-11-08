@@ -1,7 +1,44 @@
-import { Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  ArgumentMetadata,
+  BadRequestException,
+  Injectable,
+  NestMiddleware,
+  PipeTransform,
+} from '@nestjs/common';
 import { User } from './user.model';
 import { Request, Response } from 'express';
 import { CryptoService } from './crytpo.service';
+
+@Injectable()
+export class TrimPipe implements PipeTransform {
+  private isObj(obj: any): boolean {
+    return typeof obj === 'object' && obj !== null;
+  }
+
+  private trim(values) {
+    Object.keys(values).forEach((key) => {
+      if (key !== 'password') {
+        if (this.isObj(values[key])) {
+          values[key] = this.trim(values[key]);
+        } else {
+          if (typeof values[key] === 'string') {
+            values[key] = values[key].trim();
+          }
+        }
+      }
+    });
+    return values;
+  }
+
+  transform(values: any, metadata: ArgumentMetadata) {
+    const { type } = metadata;
+    if (this.isObj(values) && type === 'body') {
+      return this.trim(values);
+    }
+
+    throw new BadRequestException('Validation failed');
+  }
+}
 
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {

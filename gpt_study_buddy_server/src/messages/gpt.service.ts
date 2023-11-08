@@ -8,6 +8,8 @@ import { NotesRepository } from '../notes/notes.repository.js';
 import { EventsService } from '../events/events.service.js';
 import { EventsRepository } from '../events/events.repository.js';
 import { EventDto } from '../events/events.dto.js';
+import { Note } from '../notes/notes.model.js';
+import { NotesService } from '../notes/notes.service.js';
 
 interface CallableFunction {
   name: string;
@@ -35,6 +37,7 @@ export class GptService {
     private readonly userRepository: UsersRepository,
     private readonly botsRepository: BotsRepository,
     private readonly notesRepository: NotesRepository,
+    private readonly notesService: NotesService,
     private readonly eventsService: EventsService,
     private readonly eventsRepository: EventsRepository,
   ) {}
@@ -289,6 +292,29 @@ export class GptService {
           },
         },
       },
+      {
+        name: 'create_note',
+        description:
+          'Create a note for the user with the given user ID and add it to the user notes. Use this only when you need to add a single note.',
+        parameters: {
+          type: 'object',
+          required: ['userId', 'title', 'content'],
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The user id of the user to create the note for.',
+            },
+            title: {
+              type: 'string',
+              description: 'The title of the note.',
+            },
+            content: {
+              type: 'string',
+              description: 'The content of the note.',
+            },
+          },
+        },
+      },
     ];
 
     return callableFunctions;
@@ -318,6 +344,16 @@ export class GptService {
         const notes = await this.notesRepository.getUserNotes(args.userId);
         return {
           result: JSON.stringify(notes),
+          createdResources: [],
+        };
+      case 'create_note':
+        const note = await this.notesService.createNote({
+          title: args.title,
+          content: args.content,
+          userId: args.userId,
+        });
+        return {
+          result: JSON.stringify(note),
           createdResources: [],
         };
       case 'create_event':
