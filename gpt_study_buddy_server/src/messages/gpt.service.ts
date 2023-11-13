@@ -200,25 +200,8 @@ export class GptService {
       },
       {
         role: 'system',
-        content: "Don't include any whitespace when generating JSONs",
-      },
-      {
-        role: 'system',
-        content: "Don't include any explanations or comments in JSONs",
-      },
-      {
-        role: 'system',
-        content: 'Ensure that all JSONs are valid',
-      },
-      {
-        role: 'system',
         content:
-          "Don't make assumtioons about what vakues to plug into functions",
-      },
-      {
-        role: 'system',
-        content:
-          'When creating a powerpoint (ppt), know that the default size is 10 x 5.625 inches',
+          'When creating a PowerPoint (PPT), adhere to the default size of 10 x 5.625 inches, ensure all elements stay strictly within slide bounds, avoid overlap or exceeding slide bounds, include detailed content, use images appropriately, and create new slides as needed (e.g., when content overflows).',
       },
     ];
 
