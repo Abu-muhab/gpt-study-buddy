@@ -6,6 +6,7 @@ import {
   FileType,
   ResourceFolder,
 } from '../bucket/bucket.service';
+import axios from 'axios';
 
 @Injectable()
 export class PptService {
@@ -32,7 +33,11 @@ export class PptService {
             break;
           case SlideElementType.IMAGE:
             const imageElement = element as ImageElement;
-            pptSlide = await this.addImage(pptSlide, imageElement.src);
+            pptSlide = await this.addImage(
+              pptSlide,
+              imageElement.src,
+              element.layoutOptions,
+            );
             break;
         }
       }
@@ -63,9 +68,11 @@ export class PptService {
   private async addImage(
     slide: pptxgen.Slide,
     src: string,
+    layoutOptions: Object,
   ): Promise<pptxgen.Slide> {
     slide.addImage({
-      path: src,
+      data: await this.imageUrlToBase64(src),
+      ...layoutOptions,
     });
     return slide;
   }
@@ -88,5 +95,18 @@ export class PptService {
       fill: background,
     };
     return slide;
+  }
+
+  private async imageUrlToBase64(url: string) {
+    try {
+      const response = await axios.get(url, { responseType: 'arraybuffer' });
+      const buffer = Buffer.from(response.data, 'binary');
+      const base64 = buffer.toString('base64');
+      const dataUri = `data:${response.headers['content-type']};base64,${base64}`;
+      return dataUri;
+    } catch (error) {
+      console.error('Error fetching or converting image:', error.message);
+      throw error;
+    }
   }
 }

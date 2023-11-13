@@ -43,6 +43,41 @@ export class GptService {
     private readonly pptService: PptService,
   ) {}
 
+  private async generateImage(prompt: string): Promise<string> {
+    try {
+      let response: AxiosResponse;
+      try {
+        response = await axios.post(
+          'https://api.openai.com/v1/images/generations',
+          {
+            model: 'dall-e-3',
+            prompt: prompt,
+            n: 1,
+            size: '1024x1024',
+          },
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+          },
+        );
+      } catch (err) {
+        console.log(err.response.data);
+        throw err;
+      }
+      return response.data.data[0].url;
+    } catch (e) {
+      if (e.response) {
+        console.log(e.response.headers, e.response.status, e.response.data);
+      } else {
+        console.log(e);
+      }
+
+      throw e;
+    }
+  }
+
   private async getChatCompletion(
     messages: {
       role: string;
@@ -98,7 +133,7 @@ export class GptService {
         );
         const requiresArguments = !!callableFunction.parameters;
 
-        console.log(responseMessage['function_call']['arguments']);
+        // console.log(responseMessage['function_call']['arguments']);
         let args: Object = JSON.parse(
           responseMessage['function_call']['arguments'],
         );
@@ -203,6 +238,21 @@ export class GptService {
 
   private get callableFunctions(): CallableFunction[] {
     const callableFunctions: CallableFunction[] = [
+      {
+        name: 'generate_image',
+        description:
+          'Generates an image based on the given prompt. The image is returned as a URL. Note: Use this exclusively when you need images for powerpoint (ppt) creation.',
+        parameters: {
+          type: 'object',
+          required: ['prompt'],
+          properties: {
+            prompt: {
+              type: 'string',
+              description: 'The prompt to generate the image from.',
+            },
+          },
+        },
+      },
       {
         name: 'get_user_information',
         description:
@@ -476,7 +526,6 @@ export class GptService {
           createdResources: [],
         };
       case 'create_event':
-        console.log(args.userId);
         const event = await this.eventsService.createEvent({
           userId: args.userId,
           name: args.name,
@@ -516,6 +565,13 @@ export class GptService {
           result: JSON.stringify({
             message: 'PPT created successfully',
           }),
+          createdResources: [],
+        };
+      case 'generate_image':
+        const image = await this.generateImage(args.prompt);
+        console.log(image);
+        return {
+          result: image,
           createdResources: [],
         };
 
