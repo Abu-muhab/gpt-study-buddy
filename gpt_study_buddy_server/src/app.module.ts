@@ -15,6 +15,8 @@ import { NotesModule } from './notes/notes.module';
 import { NotesController } from './notes/notes.controller';
 import { EventsModule } from './events/events.module';
 import { EventsController } from './events/events.controller';
+import { PptModule } from './ppt/ppt.module';
+import { BucketModule } from './bucket/bucket.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { EventsController } from './events/events.controller';
     BotsModule,
     NotesModule,
     EventsModule,
+    PptModule,
+    BucketModule,
   ],
   controllers: [],
   providers: [],

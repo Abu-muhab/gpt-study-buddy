@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import axios from 'axios';
+import axios, { AxiosResponse } from 'axios';
 import { Message } from './message.model.js';
 import { UsersRepository } from '../users/user.repository.js';
 import { Bot } from '../bots/bot.model.js';
@@ -8,8 +8,8 @@ import { NotesRepository } from '../notes/notes.repository.js';
 import { EventsService } from '../events/events.service.js';
 import { EventsRepository } from '../events/events.repository.js';
 import { EventDto } from '../events/events.dto.js';
-import { Note } from '../notes/notes.model.js';
 import { NotesService } from '../notes/notes.service.js';
+import { PptService } from '../ppt/ppt.service.js';
 
 interface CallableFunction {
   name: string;
@@ -40,6 +40,7 @@ export class GptService {
     private readonly notesService: NotesService,
     private readonly eventsService: EventsService,
     private readonly eventsRepository: EventsRepository,
+    private readonly pptService: PptService,
   ) {}
 
   private async getChatCompletion(
@@ -66,25 +67,29 @@ export class GptService {
     messages = [...systemMessages, ...messages];
 
     try {
-      const response = await axios.post(
-        'https://api.openai.com/v1/chat/completions',
-        {
-          model: 'gpt-4',
-          messages: messages,
-          n: 1,
-          temperature: 1,
-          presence_penalty: 1,
-          frequency_penalty: 1,
-          functions: this.callableFunctions,
-          stream: false,
-        },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      let response: AxiosResponse;
+      try {
+        response = await axios.post(
+          'https://api.openai.com/v1/chat/completions',
+          {
+            model: 'gpt-4-1106-preview',
+            messages: messages,
+            n: 1,
+            top_p: 0.8,
+            functions: this.callableFunctions,
+            stream: false,
           },
-        },
-      );
+          {
+            headers: {
+              'Content-Type': 'application/json',
+              Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+            },
+          },
+        );
+      } catch (err) {
+        console.log(err.response.data);
+        throw err;
+      }
       const responseMessage = response.data.choices[0]['message'];
 
       if (responseMessage['function_call']) {
@@ -93,6 +98,7 @@ export class GptService {
         );
         const requiresArguments = !!callableFunction.parameters;
 
+        console.log(responseMessage['function_call']['arguments']);
         let args: Object = JSON.parse(
           responseMessage['function_call']['arguments'],
         );
@@ -159,7 +165,25 @@ export class GptService {
       },
       {
         role: 'system',
-        content: 'Do',
+        content: "Don't include any whitespace when generating JSONs",
+      },
+      {
+        role: 'system',
+        content: "Don't include any explanations or comments in JSONs",
+      },
+      {
+        role: 'system',
+        content: 'Ensure that all JSONs are valid',
+      },
+      {
+        role: 'system',
+        content:
+          "Don't make assumtioons about what vakues to plug into functions",
+      },
+      {
+        role: 'system',
+        content:
+          'When creating a powerpoint (ppt), know that the default size is 10 x 5.625 inches',
       },
     ];
 
@@ -315,6 +339,101 @@ export class GptService {
           },
         },
       },
+      {
+        name: 'create_ppt',
+        description: 'Create a ppt for the user with the given user ID',
+        parameters: {
+          type: 'object',
+          required: ['userId', 'title', 'slides', 'author', 'subject'],
+          properties: {
+            userId: {
+              type: 'string',
+              description: 'The user id of the user to create the ppt for.',
+            },
+            title: {
+              type: 'string',
+              description: 'The title of the ppt.',
+            },
+            author: {
+              type: 'string',
+              description: 'The author of the ppt.',
+            },
+            subject: {
+              type: 'string',
+              description: 'The subject of the ppt.',
+            },
+            slides: {
+              type: 'array',
+              items: {
+                type: 'object',
+                required: ['elements'],
+                properties: {
+                  elements: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      required: ['type', 'layoutOptions'],
+                      properties: {
+                        type: {
+                          type: 'string',
+                          description: 'The type of the element.',
+                        },
+                        text: {
+                          type: 'string',
+                          description:
+                            'The value of the element if it is a text element.',
+                        },
+                        src: {
+                          type: 'string',
+                          description:
+                            'The source of the element if it is an image element.',
+                        },
+                        layoutOptions: {
+                          type: 'object',
+                          description: 'The layout options of the element.',
+                          required: ['x', 'y', 'w', 'h'],
+                          properties: {
+                            x: {
+                              type: 'number',
+                              description:
+                                'The x position of the element (inches)',
+                            },
+                            y: {
+                              type: 'number',
+                              description:
+                                'The y position of the element (inches)',
+                            },
+                            w: {
+                              type: 'string',
+                              description:
+                                'The width of the element (percent) ',
+                            },
+                            h: {
+                              type: 'string',
+                              description:
+                                'The height of the element (percent)',
+                            },
+                            fontSize: {
+                              type: 'number',
+                              description:
+                                'The font size of the text element (points). This is optional',
+                            },
+                            bold: {
+                              type: 'boolean',
+                              description:
+                                'Whether or not the text element is bold. This is optional',
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     ];
 
     return callableFunctions;
@@ -391,6 +510,15 @@ export class GptService {
           ),
           createdResources: [],
         };
+      case 'create_ppt':
+        const ppt = await this.pptService.createPresentation(args);
+        return {
+          result: JSON.stringify({
+            message: 'PPT created successfully',
+          }),
+          createdResources: [],
+        };
+
       default:
         return {
           result: '',

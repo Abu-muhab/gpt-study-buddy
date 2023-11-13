@@ -4,6 +4,8 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe } from '@nestjs/common';
 import mongoose from 'mongoose';
 import { TrimPipe } from './users/auth.middleware';
+import serviceAccount from './service_account';
+import firebaseAdmin from 'firebase-admin';
 
 declare const module: any;
 
@@ -21,6 +23,12 @@ async function bootstrap() {
 
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('docs', app, document);
+
+  //firebase setup
+  firebaseAdmin.initializeApp({
+    credential: firebaseAdmin.credential.cert(serviceAccount as Object),
+    storageBucket: `${process.env.FIREBASE_BUCKET_NAME}.appspot.com`,
+  });
 
   await app.listen(3000);
 

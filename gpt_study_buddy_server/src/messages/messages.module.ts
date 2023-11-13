@@ -5,10 +5,11 @@ import { BotsModule } from 'src/bots/bots.module';
 import { UsersModule } from 'src/users/users.module';
 import { NotesModule } from '../notes/notes.module';
 import { EventsModule } from '../events/events.module';
+import { PptModule } from '../ppt/ppt.module';
 
 @Module({
   controllers: [],
   providers: [MessagesGateway, GptService],
-  imports: [BotsModule, UsersModule, NotesModule, EventsModule],
+  imports: [BotsModule, UsersModule, NotesModule, EventsModule, PptModule],
 })
 export class MessagesModule {}
