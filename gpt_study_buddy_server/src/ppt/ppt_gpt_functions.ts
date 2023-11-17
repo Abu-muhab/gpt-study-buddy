@@ -17,7 +17,7 @@ export class PptGptFunctionHanlder extends GptFunctionHandler {
       {
         name: 'create_ppt',
         description:
-          'This function creates a PowerPoint presentation for the user with the given user ID. To create a PowerPoint, all the contents of the slides must be provided in a single call. Making multiple calls to this function will result in the creation of multiple PowerPoint presentations.',
+          'This function creates a PowerPoint presentation for the user with the given user ID. To create a PowerPoint, all the contents of the slides must be provided in a single call. Making multiple calls to this function will result in the creation of multiple PowerPoint presentations. ',
         parameters: {
           type: 'object',
           required: ['userId', 'title', 'slides', 'author', 'subject'],
@@ -68,7 +68,7 @@ export class PptGptFunctionHanlder extends GptFunctionHandler {
                         layoutOptions: {
                           type: 'object',
                           description: 'The layout options of the element.',
-                          required: ['x', 'y', 'w', 'h'],
+                          required: ['x', 'y', 'w', 'h', 'fontSize'],
                           properties: {
                             x: {
                               type: 'number',
@@ -93,7 +93,7 @@ export class PptGptFunctionHanlder extends GptFunctionHandler {
                             fontSize: {
                               type: 'number',
                               description:
-                                'The font size of the text element (points). This is optional',
+                                'The font size of the text element (points)',
                             },
                             bold: {
                               type: 'boolean',

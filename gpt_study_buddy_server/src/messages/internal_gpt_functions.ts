@@ -1,6 +1,6 @@
-import { Injectable } from '@nestjs/common';
 import {
   CompletionCreatedResource,
+  CompletionCreatedResourceType,
   GptFunction,
   GptFunctionHandler,
 } from './gpt.model';
@@ -60,7 +60,12 @@ export class InternalGptFunctionHandler extends GptFunctionHandler {
         const image = await this.gptService.generateImage(args.prompt);
         return {
           result: image,
-          createdResources: [],
+          createdResources: [
+            {
+              type: CompletionCreatedResourceType.image,
+              resource: image,
+            },
+          ],
         };
 
       default:

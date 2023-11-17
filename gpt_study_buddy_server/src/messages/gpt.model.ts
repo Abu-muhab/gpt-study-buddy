@@ -19,6 +19,7 @@ export enum CompletionCreatedResourceType {
   event = 'event',
   note = 'note',
   ppt = 'ppt',
+  image = 'image',
 }
 
 export interface CompletionCreatedResource {
