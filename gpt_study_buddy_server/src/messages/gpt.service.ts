@@ -13,6 +13,7 @@ import {
   GptFunctionHandler,
   GptFunction,
 } from './gpt.model';
+import { EventsGptFunctionHanlder } from '../events/events_gpt_functions';
 
 @Injectable()
 export class GptService {
@@ -21,6 +22,7 @@ export class GptService {
     private readonly botsGptFunctionHandler: BotsGptFunctionHandler,
     private readonly usersGptFunctionHandler: UsersGptFunctionHandler,
     private readonly pptGptFunctionHandler: PptGptFunctionHanlder,
+    private readonly eventsGptFunctionHandler: EventsGptFunctionHanlder,
   ) {}
 
   async generateImage(prompt: string): Promise<string> {
@@ -91,7 +93,13 @@ export class GptService {
             messages: messages,
             n: 1,
             top_p: 0.8,
-            functions: this.gptFunctions,
+            tools: this.gptFunctions.map((f) => {
+              return {
+                type: 'function',
+                function: f,
+              };
+            }),
+            tool_choice: 'auto',
             stream: false,
           },
           {
@@ -107,36 +115,56 @@ export class GptService {
       }
       const responseMessage = response.data.choices[0]['message'];
 
-      if (responseMessage['function_call']) {
-        const callableFunction = this.gptFunctions.find(
-          (f) => f.name === responseMessage['function_call']['name'],
-        );
-        const requiresArguments = !!callableFunction.parameters;
+      messages.push(responseMessage);
 
-        let args: Object = JSON.parse(
-          responseMessage['function_call']['arguments'],
-        );
-
-        if (callableFunction == null || (requiresArguments && args == null)) {
-          return {
-            completion: null,
-            createdResources: [],
+      if (responseMessage['tool_calls']) {
+        const toolCalls: {
+          function: {
+            name: string;
+            arguments: string;
           };
-        }
+          id: string;
+        }[] = responseMessage['tool_calls'];
 
-        const functionResponse = await this.callGptFunction(
-          callableFunction,
-          args,
-        );
+        const gptFunctions = toolCalls
+          .map((tc) => {
+            return this.gptFunctions.find((f) => f.name === tc.function.name);
+          })
+          .filter((f) => f != null);
 
-        messages.push(responseMessage);
-        messages.push({
-          role: 'function',
-          name: callableFunction.name,
-          content: functionResponse.result,
+        const promises = gptFunctions.map(async (gptFunction, index) => {
+          const toolCall = toolCalls[index];
+          const requiresArguments = !!gptFunction.parameters;
+
+          let args: Object = JSON.parse(toolCall.function.arguments);
+
+          if (gptFunction == null || (requiresArguments && args == null)) {
+            return {
+              completion: null,
+              createdResources: [],
+            };
+          }
+
+          const functionResponse = await this.callGptFunction(
+            gptFunction,
+            args,
+          );
+
+          createdResources.push(...functionResponse.createdResources);
+
+          return {
+            tool_call_id: toolCall.id,
+            role: 'tool',
+            name: gptFunction.name,
+            content: functionResponse.result,
+          };
         });
 
-        createdResources.push(...functionResponse.createdResources);
+        const functionResponses = await Promise.all(promises);
+        functionResponses.forEach((fr) => {
+          messages.push(fr as any);
+        });
+
         return await this.getChatCompletion(
           messages,
           systemMessages,
@@ -205,6 +233,7 @@ export class GptService {
       this.notesGptFunctionHandler,
       this.usersGptFunctionHandler,
       this.pptGptFunctionHandler,
+      this.eventsGptFunctionHandler,
     ];
   }
 
