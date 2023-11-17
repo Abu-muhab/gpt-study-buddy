@@ -7,6 +7,7 @@ import {
 } from './user.repository';
 import { CryptoService } from './crytpo.service';
 import { UsersController } from './users.controller';
+import { UsersGptFunctionHandler } from './users_gpt_functions';
 
 @Module({
   providers: [
@@ -22,8 +23,15 @@ import { UsersController } from './users.controller';
 
     //mappers
     UserMappper,
+
+    UsersGptFunctionHandler,
   ],
   controllers: [UsersController],
-  exports: [UsersRepository, CryptoService, UsersService],
+  exports: [
+    UsersRepository,
+    CryptoService,
+    UsersService,
+    UsersGptFunctionHandler,
+  ],
 })
 export class UsersModule {}

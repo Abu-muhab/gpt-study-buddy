@@ -22,12 +22,12 @@ import { BucketModule } from './bucket/bucket.module';
   imports: [
     ConfigModule.forRoot(),
     UsersModule,
-    MessagesModule,
     BotsModule,
     NotesModule,
     EventsModule,
     PptModule,
     BucketModule,
+    MessagesModule,
   ],
   controllers: [],
   providers: [],

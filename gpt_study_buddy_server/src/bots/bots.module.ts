@@ -7,6 +7,7 @@ import {
 import { BotsService } from './bots.service';
 import { BotsController } from './bots.controller';
 import { UsersModule } from 'src/users/users.module';
+import { BotsGptFunctionHandler } from './bots_gpt_functions';
 
 @Module({
   imports: [UsersModule],
@@ -23,7 +24,9 @@ import { UsersModule } from 'src/users/users.module';
 
     //services
     BotsService,
+
+    BotsGptFunctionHandler,
   ],
-  exports: [BotsRepository],
+  exports: [BotsRepository, BotsGptFunctionHandler],
 })
 export class BotsModule {}

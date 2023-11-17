@@ -51,8 +51,6 @@ export class PptService {
       userId: args.userId,
     });
 
-    console.log(url);
-
     return url;
   }
 

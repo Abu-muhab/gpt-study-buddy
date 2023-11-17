@@ -7,6 +7,7 @@ import {
   EventsRepositoryImpl,
 } from './events.repository';
 import { UsersModule } from '../users/users.module';
+import { EventsGptFunctionHanlder } from './events_gpt_functions';
 
 @Module({
   providers: [
@@ -16,9 +17,10 @@ import { UsersModule } from '../users/users.module';
       provide: EventsRepository,
       useClass: EventsRepositoryImpl,
     },
+    EventsGptFunctionHanlder,
   ],
   controllers: [EventsController],
   imports: [UsersModule],
-  exports: [EventsService, EventsRepository],
+  exports: [EventsService, EventsRepository, EventsGptFunctionHanlder],
 })
 export class EventsModule {}

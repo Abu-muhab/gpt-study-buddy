@@ -6,6 +6,7 @@ import { UsersModule } from 'src/users/users.module';
 import { NotesModule } from '../notes/notes.module';
 import { EventsModule } from '../events/events.module';
 import { PptModule } from '../ppt/ppt.module';
+import { InternalGptFunctionHandler } from './internal_gpt_functions';
 
 @Module({
   controllers: [],

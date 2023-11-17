@@ -1,49 +1,29 @@
 import { Injectable } from '@nestjs/common';
 import axios, { AxiosResponse } from 'axios';
-import { Message } from './message.model.js';
-import { UsersRepository } from '../users/user.repository.js';
-import { Bot } from '../bots/bot.model.js';
-import { BotsRepository } from '../bots/bots.repository.js';
-import { NotesRepository } from '../notes/notes.repository.js';
-import { EventsService } from '../events/events.service.js';
-import { EventsRepository } from '../events/events.repository.js';
-import { EventDto } from '../events/events.dto.js';
-import { NotesService } from '../notes/notes.service.js';
-import { PptService } from '../ppt/ppt.service.js';
-
-interface CallableFunction {
-  name: string;
-  description: string;
-  parameters?: object;
-}
-
-export enum CompletionCreatedResourceType {
-  event = 'event',
-}
-
-export interface CompletionCreatedResource {
-  type: CompletionCreatedResourceType;
-  resource: Object;
-}
-
-export interface CompletionResult {
-  completion: string;
-  createdResources: CompletionCreatedResource[];
-}
+import { Message } from './message.model';
+import { Bot } from '../bots/bot.model';
+import { BotsGptFunctionHandler } from '../bots/bots_gpt_functions';
+import { NotesGptFunctionHanlder } from '../notes/notes_gpt_functions';
+import { InternalGptFunctionHandler } from './internal_gpt_functions';
+import { UsersGptFunctionHandler } from '../users/users_gpt_functions';
+import { PptGptFunctionHanlder } from '../ppt/ppt_gpt_functions';
+import {
+  CompletionCreatedResource,
+  CompletionResult,
+  GptFunctionHandler,
+  GptFunction,
+} from './gpt.model';
 
 @Injectable()
 export class GptService {
   constructor(
-    private readonly userRepository: UsersRepository,
-    private readonly botsRepository: BotsRepository,
-    private readonly notesRepository: NotesRepository,
-    private readonly notesService: NotesService,
-    private readonly eventsService: EventsService,
-    private readonly eventsRepository: EventsRepository,
-    private readonly pptService: PptService,
+    private readonly notesGptFunctionHandler: NotesGptFunctionHanlder,
+    private readonly botsGptFunctionHandler: BotsGptFunctionHandler,
+    private readonly usersGptFunctionHandler: UsersGptFunctionHandler,
+    private readonly pptGptFunctionHandler: PptGptFunctionHanlder,
   ) {}
 
-  private async generateImage(prompt: string): Promise<string> {
+  async generateImage(prompt: string): Promise<string> {
     try {
       let response: AxiosResponse;
       try {
@@ -111,7 +91,7 @@ export class GptService {
             messages: messages,
             n: 1,
             top_p: 0.8,
-            functions: this.callableFunctions,
+            functions: this.gptFunctions,
             stream: false,
           },
           {
@@ -128,12 +108,11 @@ export class GptService {
       const responseMessage = response.data.choices[0]['message'];
 
       if (responseMessage['function_call']) {
-        const callableFunction = this.callableFunctions.find(
+        const callableFunction = this.gptFunctions.find(
           (f) => f.name === responseMessage['function_call']['name'],
         );
         const requiresArguments = !!callableFunction.parameters;
 
-        // console.log(responseMessage['function_call']['arguments']);
         let args: Object = JSON.parse(
           responseMessage['function_call']['arguments'],
         );
@@ -145,7 +124,7 @@ export class GptService {
           };
         }
 
-        const functionResponse = await this.callCallableFunction(
+        const functionResponse = await this.callGptFunction(
           callableFunction,
           args,
         );
@@ -200,8 +179,8 @@ export class GptService {
       },
       {
         role: 'system',
-        content:
-          'When creating a PowerPoint (PPT), adhere to the default size of 10 x 5.625 inches, ensure all elements stay strictly within slide bounds, avoid overlap or exceeding slide bounds, include detailed content, use images appropriately, and create new slides as needed (e.g., when content overflows).',
+        content: `When creating a PowerPoint (PPT), adhere strictly to the default size of 10 x 5.625 inches. Ensure that all elements remain within the slide bounds, avoiding overlap or exceeding the designated limits. Additionally, include detailed content in your presentation, incorporating ample text, examples, explanations and images. Be as detailed as possible unless instructed otherwise. Always incorporate images, and generate them using the 'generate_image' function. Refrain from adding images from external sources. Furthermore, create new slides as necessary, particularly when content overflows the confines of a single slide. Following these guidelines will contribute to a visually appealing and well-organized presentation.
+        `,
       },
     ];
 
@@ -219,350 +198,54 @@ export class GptService {
     );
   }
 
-  private get callableFunctions(): CallableFunction[] {
-    const callableFunctions: CallableFunction[] = [
-      {
-        name: 'generate_image',
-        description:
-          'Generates an image based on the given prompt. The image is returned as a URL. Note: Use this exclusively when you need images for powerpoint (ppt) creation.',
-        parameters: {
-          type: 'object',
-          required: ['prompt'],
-          properties: {
-            prompt: {
-              type: 'string',
-              description: 'The prompt to generate the image from.',
-            },
-          },
-        },
-      },
-      {
-        name: 'get_user_information',
-        description:
-          'Returns information about the user such as the firstName, lastName and email.',
-        parameters: {
-          type: 'object',
-          required: ['userId'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to get information from.',
-            },
-          },
-        },
-      },
-      {
-        name: 'get_user_bots',
-        description:
-          'Returns the bots that the user with the given user id has created.',
-        parameters: {
-          type: 'object',
-          required: ['userId'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to get bots from.',
-            },
-          },
-        },
-      },
-      {
-        name: 'get_user_notes',
-        description:
-          'Returns notes that the user with the given user id has created. Can include notes such as learning notes, meeting notes, etc.',
-        parameters: {
-          type: 'object',
-          required: ['userId'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to get bots from.',
-            },
-          },
-        },
-      },
-      {
-        name: 'get_current_date_time',
-        description:
-          'This function returns the current date and time in the ISO string format (e.g., 2021-06-13T15:00:00.000Z). Use it when you need to calculate future dates in reference to the current date and time.',
-        parameters: {
-          type: 'object',
-          required: [],
-          properties: {},
-        },
-      },
-      {
-        name: 'create_event',
-        description:
-          "Create an event for the user with the given user ID and add it to the user's schedule or calendar. Use this only when you need to add a single event.",
-        parameters: {
-          type: 'object',
-          required: ['userId', 'name', 'startDate', 'endDate', 'isAllDay'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to create the event for.',
-            },
-            name: {
-              type: 'string',
-              description: 'The name of the event.',
-            },
-            startDate: {
-              type: 'string',
-              description:
-                'The start date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
-            },
-            endDate: {
-              type: 'string',
-              description:
-                'The end date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
-            },
-            isAllDay: {
-              type: 'boolean',
-              description: 'Whether or not the event is all day.',
-            },
-          },
-        },
-      },
-      {
-        name: 'get_events',
-        description:
-          'Returns the events for the user for the given time period.',
-        parameters: {
-          type: 'object',
-          required: ['userId', 'startDate', 'endDate'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to get events from.',
-            },
-            startDate: {
-              type: 'string',
-              description:
-                'The start date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
-            },
-            endDate: {
-              type: 'string',
-              description:
-                'The end date of the event in ISO string format. e.g 2021-06-13T15:00:00.000Z',
-            },
-          },
-        },
-      },
-      {
-        name: 'create_note',
-        description:
-          'Create a note for the user with the given user ID and add it to the user notes. Use this only when you need to add a single note.',
-        parameters: {
-          type: 'object',
-          required: ['userId', 'title', 'content'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to create the note for.',
-            },
-            title: {
-              type: 'string',
-              description: 'The title of the note.',
-            },
-            content: {
-              type: 'string',
-              description: 'The content of the note.',
-            },
-          },
-        },
-      },
-      {
-        name: 'create_ppt',
-        description: 'Create a ppt for the user with the given user ID',
-        parameters: {
-          type: 'object',
-          required: ['userId', 'title', 'slides', 'author', 'subject'],
-          properties: {
-            userId: {
-              type: 'string',
-              description: 'The user id of the user to create the ppt for.',
-            },
-            title: {
-              type: 'string',
-              description: 'The title of the ppt.',
-            },
-            author: {
-              type: 'string',
-              description: 'The author of the ppt.',
-            },
-            subject: {
-              type: 'string',
-              description: 'The subject of the ppt.',
-            },
-            slides: {
-              type: 'array',
-              items: {
-                type: 'object',
-                required: ['elements'],
-                properties: {
-                  elements: {
-                    type: 'array',
-                    items: {
-                      type: 'object',
-                      required: ['type', 'layoutOptions'],
-                      properties: {
-                        type: {
-                          type: 'string',
-                          description: 'The type of the element.',
-                        },
-                        text: {
-                          type: 'string',
-                          description:
-                            'The value of the element if it is a text element.',
-                        },
-                        src: {
-                          type: 'string',
-                          description:
-                            'The source of the element if it is an image element.',
-                        },
-                        layoutOptions: {
-                          type: 'object',
-                          description: 'The layout options of the element.',
-                          required: ['x', 'y', 'w', 'h'],
-                          properties: {
-                            x: {
-                              type: 'number',
-                              description:
-                                'The x position of the element (inches)',
-                            },
-                            y: {
-                              type: 'number',
-                              description:
-                                'The y position of the element (inches)',
-                            },
-                            w: {
-                              type: 'string',
-                              description:
-                                'The width of the element (percent) ',
-                            },
-                            h: {
-                              type: 'string',
-                              description:
-                                'The height of the element (percent)',
-                            },
-                            fontSize: {
-                              type: 'number',
-                              description:
-                                'The font size of the text element (points). This is optional',
-                            },
-                            bold: {
-                              type: 'boolean',
-                              description:
-                                'Whether or not the text element is bold. This is optional',
-                            },
-                          },
-                        },
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-      },
+  private get gptFunctionHandlers(): GptFunctionHandler[] {
+    return [
+      new InternalGptFunctionHandler(this),
+      this.botsGptFunctionHandler,
+      this.notesGptFunctionHandler,
+      this.usersGptFunctionHandler,
+      this.pptGptFunctionHandler,
     ];
-
-    return callableFunctions;
   }
 
-  private async callCallableFunction(
-    callableFunction: CallableFunction,
+  private get gptFunctions(): GptFunction[] {
+    return this.gptFunctionHandlers
+      .map((h) => h.handledFunctions)
+      .reduce((a, b) => a.concat(b), []);
+  }
+
+  private async callGptFunction(
+    gptFunction: GptFunction,
     args: any,
   ): Promise<{
     result: string;
     createdResources: CompletionCreatedResource[];
   }> {
-    switch (callableFunction.name) {
-      case 'get_user_information':
-        const response = await this.userRepository.findById(args.userId);
-        return {
-          result: JSON.stringify(response),
-          createdResources: [],
-        };
-      case 'get_user_bots':
-        const bots = await this.botsRepository.getUserBots(args.userId);
-        return {
-          result: JSON.stringify(bots),
-          createdResources: [],
-        };
-      case 'get_user_notes':
-        const notes = await this.notesRepository.getUserNotes(args.userId);
-        return {
-          result: JSON.stringify(notes),
-          createdResources: [],
-        };
-      case 'create_note':
-        const note = await this.notesService.createNote({
-          title: args.title,
-          content: args.content,
-          userId: args.userId,
-        });
-        return {
-          result: JSON.stringify(note),
-          createdResources: [],
-        };
-      case 'create_event':
-        const event = await this.eventsService.createEvent({
-          userId: args.userId,
-          name: args.name,
-          startDate: new Date(args.startDate),
-          endDate: new Date(args.endDate),
-          isAllDay: args.isAllDay,
-        });
-        return {
-          result: JSON.stringify(event),
-          createdResources: [
-            {
-              type: CompletionCreatedResourceType.event,
-              resource: EventDto.fromDomain(event),
-            },
-          ],
-        };
-      case 'get_current_date_time':
-        const date = new Date();
-        return {
-          result: date.toISOString(),
-          createdResources: [],
-        };
-      case 'get_events':
-        return {
-          result: JSON.stringify(
-            await this.eventsRepository.getUserEventBetweenDates({
-              userId: args.userId,
-              startDate: new Date(args.startDate),
-              endDate: new Date(args.endDate),
-            }),
-          ),
-          createdResources: [],
-        };
-      case 'create_ppt':
-        const ppt = await this.pptService.createPresentation(args);
-        return {
-          result: JSON.stringify({
-            message: 'PPT created successfully',
-          }),
-          createdResources: [],
-        };
-      case 'generate_image':
-        const image = await this.generateImage(args.prompt);
-        console.log(image);
-        return {
-          result: image,
-          createdResources: [],
-        };
+    const handler = this.gptFunctionHandlers.find(
+      (h) =>
+        h.handledFunctions.find((f) => f.name === gptFunction.name) != null,
+    );
 
-      default:
-        return {
-          result: '',
-          createdResources: [],
-        };
+    if (handler == null) {
+      throw new Error(`No handler found for function ${gptFunction.name}`);
     }
+
+    console.log(
+      'Calling function',
+      gptFunction.name,
+      args,
+      `with handler ${handler.constructor.name}`,
+    );
+
+    const response = await handler.handleFunction({
+      functionName: gptFunction.name,
+      args: args,
+    });
+
+    for (const resource of response.createdResources) {
+      console.log('Created resource', JSON.stringify(resource));
+    }
+
+    return response;
   }
 }

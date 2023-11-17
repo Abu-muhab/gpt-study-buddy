@@ -6,6 +6,7 @@ import {
   NotesRepository,
   NotesRepositoryImpl,
 } from './notes.repository';
+import { NotesGptFunctionHanlder } from './notes_gpt_functions';
 
 @Module({
   providers: [
@@ -15,8 +16,9 @@ import {
       useClass: NotesRepositoryImpl,
     },
     NotesMapper,
+    NotesGptFunctionHanlder,
   ],
   controllers: [NotesController],
-  exports: [NotesService, NotesRepository],
+  exports: [NotesService, NotesRepository, NotesGptFunctionHanlder],
 })
 export class NotesModule {}

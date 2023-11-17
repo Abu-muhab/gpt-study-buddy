@@ -1,4 +1,4 @@
-import { CompletionCreatedResource } from './gpt.service';
+import { CompletionCreatedResource } from './gpt.model';
 
 export interface Message {
   message: string;
