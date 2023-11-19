@@ -14,10 +14,12 @@ import {
   GptFunction,
 } from './gpt.model';
 import { EventsGptFunctionHanlder } from '../events/events_gpt_functions';
+import { BucketService } from '../bucket/bucket.service';
 
 @Injectable()
 export class GptService {
   constructor(
+    private readonly bucketService: BucketService,
     private readonly notesGptFunctionHandler: NotesGptFunctionHanlder,
     private readonly botsGptFunctionHandler: BotsGptFunctionHandler,
     private readonly usersGptFunctionHandler: UsersGptFunctionHandler,
@@ -25,7 +27,10 @@ export class GptService {
     private readonly eventsGptFunctionHandler: EventsGptFunctionHanlder,
   ) {}
 
-  async generateImage(prompt: string): Promise<string> {
+  async generateImage(params: {
+    prompt: string;
+    userId: string;
+  }): Promise<string> {
     try {
       let response: AxiosResponse;
       try {
@@ -33,7 +38,7 @@ export class GptService {
           'https://api.openai.com/v1/images/generations',
           {
             model: 'dall-e-3',
-            prompt: prompt,
+            prompt: params.prompt,
             n: 1,
             size: '1024x1024',
           },
@@ -48,7 +53,11 @@ export class GptService {
         console.log(err.response.data);
         throw err;
       }
-      return response.data.data[0].url;
+      const url = response.data.data[0].url;
+      return this.bucketService.uploadImageFromUrl({
+        url: url,
+        userId: params.userId,
+      });
     } catch (e) {
       if (e.response) {
         console.log(e.response.headers, e.response.status, e.response.data);

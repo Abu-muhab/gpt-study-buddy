@@ -1,12 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import pptxgen from 'pptxgenjs';
-import { ImageElement, Ppt, SlideElementType, TextElement } from './ppt.model';
-import {
-  BucketService,
-  FileType,
-  ResourceFolder,
-} from '../bucket/bucket.service';
-import axios from 'axios';
+import { ImageElement, SlideElementType, TextElement } from './ppt.model';
+import { BucketService, ResourceFolder } from '../bucket/bucket.service';
+import { FileTypes } from '../bucket/mimetype';
+import { imageUrlToBase64 } from '../common/image_utils';
 
 @Injectable()
 export class PptService {
@@ -47,7 +44,7 @@ export class PptService {
     const url = await this.bucketService.uploadFileFromBuffer({
       buffer: Buffer.from(arrayBuffer as ArrayBuffer),
       resourceFolder: ResourceFolder.PRESENTATION,
-      fileType: FileType.PPTX,
+      fileType: FileTypes.ppt,
       userId: args.userId,
     });
 
@@ -69,7 +66,7 @@ export class PptService {
     layoutOptions: Object,
   ): Promise<pptxgen.Slide> {
     slide.addImage({
-      data: await this.imageUrlToBase64(src),
+      data: await imageUrlToBase64(src),
       ...layoutOptions,
     });
     return slide;
@@ -93,18 +90,5 @@ export class PptService {
       fill: background,
     };
     return slide;
-  }
-
-  private async imageUrlToBase64(url: string) {
-    try {
-      const response = await axios.get(url, { responseType: 'arraybuffer' });
-      const buffer = Buffer.from(response.data, 'binary');
-      const base64 = buffer.toString('base64');
-      const dataUri = `data:${response.headers['content-type']};base64,${base64}`;
-      return dataUri;
-    } catch (error) {
-      console.error('Error fetching or converting image:', error.message);
-      throw error;
-    }
   }
 }

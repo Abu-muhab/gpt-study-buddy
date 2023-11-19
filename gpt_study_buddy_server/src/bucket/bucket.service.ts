@@ -3,14 +3,14 @@ import { randomUUID } from 'crypto';
 import firebaseAdmin from 'firebase-admin';
 import { getDownloadURL } from 'firebase-admin/storage';
 import stream from 'stream';
+import { BucketFileRepository } from './bucket.repository';
+import { BucketFile } from './bucket_file.model';
+import axios from 'axios';
+import { FileTypes } from './mimetype';
 
 export enum ResourceFolder {
   PRESENTATION = 'presentation',
-}
-
-export enum FileType {
-  PPTX = 'pptx',
-  PDF = 'pdf',
+  IMAGES = 'images',
 }
 
 export namespace ResourceFolder {
@@ -18,6 +18,8 @@ export namespace ResourceFolder {
     switch (value) {
       case 'presentation':
         return ResourceFolder.PRESENTATION;
+      case 'images':
+        return ResourceFolder.IMAGES;
       default:
         throw new HttpException(
           'Invalid resource name',
@@ -27,12 +29,14 @@ export namespace ResourceFolder {
   }
 
   export function allResourceNames(): Array<ResourceFolder> {
-    return [ResourceFolder.PRESENTATION];
+    return [ResourceFolder.PRESENTATION, ResourceFolder.IMAGES];
   }
 }
 
 @Injectable()
 export class BucketService {
+  constructor(private readonly bucketfileRepository: BucketFileRepository) {}
+
   public uploadFile(params: {
     file: File;
     resourceFolder: ResourceFolder;
@@ -46,9 +50,9 @@ export class BucketService {
         return;
       }
 
-      const blob = bucket.file(
-        `users/${params.userId}/${params.resourceFolder}/${params.file.name}`,
-      );
+      const folder = `users/${params.userId}/${params.resourceFolder}`;
+      const name = `${randomUUID()}${params.file.name}`;
+      const blob = bucket.file(`${folder}/${name}`);
       const blobStream = blob.createWriteStream({
         resumable: false,
         metadata: {
@@ -62,6 +66,21 @@ export class BucketService {
 
       blobStream.on('finish', async () => {
         const downloadUrl = await getDownloadURL(blob);
+        const bukcetFile = await firebaseAdmin
+          .storage()
+          .bucket()
+          .file(blob.name)
+          .get();
+        await this.bucketfileRepository.add(
+          new BucketFile({
+            id: randomUUID(),
+            userId: params.userId,
+            name: name,
+            folder: folder,
+            type: bukcetFile[0].metadata.contentType,
+            url: downloadUrl,
+          }),
+        );
         resolve(downloadUrl);
       });
 
@@ -72,7 +91,7 @@ export class BucketService {
   public uploadFileFromBuffer(params: {
     buffer: Buffer;
     resourceFolder: ResourceFolder;
-    fileType: FileType;
+    fileType: { extension: string; mimeType: string };
     userId: string;
   }): Promise<string> {
     const bucket = firebaseAdmin.storage().bucket();
@@ -83,10 +102,10 @@ export class BucketService {
         return;
       }
 
+      const folder = `users/${params.userId}/${params.resourceFolder}`;
+      const name = `${randomUUID()}${params.fileType.extension}`;
       const blob = bucket.file(
-        `users/${params.userId}/${params.resourceFolder}/${randomUUID()}.${
-          params.fileType
-        }`, // Replace with your desired filename
+        `${folder}/${name}`, // Replace with your desired filename
       );
 
       // Create a ReadableStream from the buffer
@@ -96,7 +115,7 @@ export class BucketService {
       const blobStream = blob.createWriteStream({
         resumable: false,
         metadata: {
-          contentType: 'application/octet-stream', // Adjust the content type if needed
+          contentType: params.fileType.mimeType,
         },
       });
 
@@ -106,11 +125,43 @@ export class BucketService {
 
       blobStream.on('finish', async () => {
         const downloadUrl = await getDownloadURL(blob);
+        const bukcetFile = await firebaseAdmin
+          .storage()
+          .bucket()
+          .file(blob.name)
+          .get();
+        await this.bucketfileRepository.add(
+          new BucketFile({
+            id: randomUUID(),
+            userId: params.userId,
+            name: name,
+            folder: folder,
+            type: bukcetFile[0].metadata.contentType,
+            url: downloadUrl,
+          }),
+        );
         resolve(downloadUrl);
       });
 
       // Pipe the buffer stream to the blob stream
       bufferStream.pipe(blobStream);
+    });
+  }
+
+  public async uploadImageFromUrl(params: {
+    url: string;
+    userId: string;
+  }): Promise<string> {
+    const response = await axios.get(params.url, {
+      responseType: 'arraybuffer',
+    });
+    const buffer = Buffer.from(response.data, 'binary');
+
+    return await this.uploadFileFromBuffer({
+      buffer: buffer,
+      resourceFolder: ResourceFolder.IMAGES,
+      fileType: FileTypes.png,
+      userId: params.userId,
     });
   }
 }

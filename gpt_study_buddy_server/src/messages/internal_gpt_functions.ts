@@ -19,11 +19,15 @@ export class InternalGptFunctionHandler extends GptFunctionHandler {
           'Generates an image based on the given prompt. The image is returned as a URL. Note: Use this exclusively when you need images for powerpoint (ppt) creation.',
         parameters: {
           type: 'object',
-          required: ['prompt'],
+          required: ['prompt', 'userId'],
           properties: {
             prompt: {
               type: 'string',
               description: 'The prompt to generate the image from.',
+            },
+            userId: {
+              type: 'string',
+              description: 'The user id to associate the image with.',
             },
           },
         },
@@ -57,7 +61,10 @@ export class InternalGptFunctionHandler extends GptFunctionHandler {
           createdResources: [],
         };
       case 'generate_image':
-        const image = await this.gptService.generateImage(args.prompt);
+        const image = await this.gptService.generateImage({
+          prompt: args.prompt,
+          userId: args.userId,
+        });
         return {
           result: image,
           createdResources: [
